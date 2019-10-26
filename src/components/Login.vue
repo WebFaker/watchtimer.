@@ -143,31 +143,15 @@
             />
           </a-form-item>
           <a-form-item>
-            <a-checkbox
-              v-decorator="[
-                'remember',
-                {
-                  valuePropName: 'checked',
-                  initialValue: true,
-                },
-              ]"
-            >
-              Remember me
-            </a-checkbox>
             <a-button @click="toggleReset" class="login-form-forgot" type="link">
               Forgot password
             </a-button>
-            <a-button @click="signIn" type="primary" html-type="submit" class="login-form-button">
+            <a-button @click="signUp" type="primary" html-type="submit">
               Register
             </a-button>
             Or
             <a-button @click="toggleRegister" type="link">
               log in
-            </a-button>
-          </a-form-item>
-          <a-form-item>
-            <a-button @click="signUp" type="primary" html-type="submit">
-              Register
             </a-button>
           </a-form-item>
         </a-form>
