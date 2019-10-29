@@ -38,7 +38,7 @@
                   Score : {{ i.score }}/10
                 </p>
                 <p v-if="searchType == 'character'">{{ i.name }}</p>
-                <div v-if="i.alternative_names.length !== 0">
+                <div v-if="searchType == 'character' && i.alternative_names.length !== 0">
                   <span>Known as :</span>
                   <span v-for="(name, g) in i.alternative_names" :key="g">{{ name }}</span>
                 </div>
@@ -66,7 +66,7 @@
             </div>
           </div>
           <div class="modal_informations">
-            <div v-if="searchType === 'anime'" class="video_wrapper">
+            <div v-if="searchType === 'anime' && modal.embed !== null" class="video_wrapper">
               <iframe
                 :src="modal.embed"
                 width="100%"
@@ -107,9 +107,9 @@
           v-for="(top, f) in topResults"
           :key="f"
           hoverable
-          style="margin: 10px; width: 240px"
+          style="margin: 10px; width: 240px; position: relative"
         >
-          <!-- <a-icon style="position: absolute;" type="eye" /> -->
+          <a-icon style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="twoTone" />
           <img
             style="height: 370px; object-fit: contain; object-position: 50% 0%"
             :src="top.image_url"

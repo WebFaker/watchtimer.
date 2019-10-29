@@ -1,15 +1,24 @@
 <template>
   <div id="app">
-    <div v-if="fullLoad" class="fullLoad">
+    <div v-if="fullLoad && firstTime !== 'yes'" class="fullLoad">
       <img class="loader fullLoad_img" src="@/assets/eye.png" alt="">
     </div>
     <div id="nav">
-      <div>
-        <img style="margin-right: 10px; width: 20px" src="@/assets/eye.png" alt="Logo"><span>Watchtimer.</span>
-      </div>
+      <router-link style="color: #000 !important;" to="/">
+        <img style="margin-right: 10px; width: 20px" src="@/assets/eye.png" alt="Logo"><span style="font-weight: lighter;">Watchtimer.</span>
+      </router-link>
       <div style="display: flex; align-items: center;">
         <router-link to="/">Home</router-link>
-        <Login />
+        <router-link v-if="isLogged === 'false'" style="margin-left: 10px;" to="login">Account</router-link>
+        <span style="margin: 0 5px;"></span>
+        <a-dropdown v-if="isLogged === 'true'">
+          <span style="display: flex; align-items: center;">{{ $store.state.userdb.displayName }}<a-avatar style="margin-left: 5px;" :src="$store.state.userdb.photoURL" /></span>
+          <a-menu slot="overlay">
+            <a-menu-item key="1"><router-link to="/profile"><a-icon type="user" /> Profile</router-link></a-menu-item>
+            <a-menu-item key="2"><router-link to="/settings"><a-icon type="setting" /> Settings</router-link></a-menu-item>
+            <a-menu-item key="3" @click="signOut"><a-icon type="logout" /> Log out</a-menu-item>
+          </a-menu>
+        </a-dropdown>
       </div>
     </div>
     <router-view/>
@@ -19,27 +28,43 @@
 </template>
 
 <script>
-import Login from '@/components/Login.vue'
+import firebase from 'firebase'
+import { message } from 'ant-design-vue'
 
 export default {
   name: 'App',
-  components: {
-    Login
-  },
   data () {
     return {
-      fullLoad: true
+      isLogged: localStorage.isLogged,
+      fullLoad: true,
+      firstTime: sessionStorage.firstTime
+    }
+  },
+  beforeCreate() {
+    if (localStorage.isLogged === null) {
+      localStorage.isLogged = false
     }
   },
   mounted () {
-    if (!localStorage.isLogged) {
-      localStorage.isLogged = false
-    }
+    this.$store.dispatch('updateProfile')
     setTimeout(() => {
       this.fullLoad = false
+      sessionStorage.firstTime = "yes"
     }, 4000)
   },
   methods: {
+    signOut() {
+      firebase.auth().signOut()
+      .then(function() {
+        // Sign-out successful.
+        localStorage.isLogged = false
+        window.location.href = './'
+      })
+      .catch(function(error) {
+        // An error happened
+        message.error('An error occured, please try again.' + error)
+      });
+    }
   }
 }
 </script>
@@ -92,11 +117,15 @@ export default {
   padding: 30px;
 
   a {
-    font-weight: bold;
-    color: #2c3e50;
+    color: #000000;
+    transition: 0.3s all;
+    &:hover {
+      color: #ffd500;
+    }
 
     &.router-link-exact-active {
       color: #ffd500;
+      text-decoration: none;
     }
   }
 }
