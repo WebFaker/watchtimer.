@@ -273,7 +273,7 @@ export default {
           .then(function() {
             firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
             localStorage.isLogged = true
-            window.location.href = '/profile'
+            window.location.href = './profile'
           })
         },
         function (err) {
