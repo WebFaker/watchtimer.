@@ -66,45 +66,46 @@ export default {
       });
     }
   }
-}
+};
 </script>
 
 <style lang="scss">
-  .ant-message {
-    z-index: 9999 !important;
-  }
+.ant-message {
+  z-index: 9999 !important;
+}
 </style>
 
 <style lang="scss" scoped>
-
 .loader {
-  -webkit-animation: scale-up-center 0.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) infinite alternate ;
-  animation: scale-up-center 0.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) infinite alternate ;
+  -webkit-animation: scale-up-center 0.4s cubic-bezier(0.39, 0.575, 0.565, 1)
+    infinite alternate;
+  animation: scale-up-center 0.4s cubic-bezier(0.39, 0.575, 0.565, 1) infinite
+    alternate;
 }
 
 @-webkit-keyframes scale-up-center {
   0% {
     -webkit-transform: translate(-50%, -50%) scale(0.5);
-            transform: translate(-50%, -50%) scale(0.5);
+    transform: translate(-50%, -50%) scale(0.5);
   }
   100% {
     -webkit-transform: translate(-50%, -50%) scale(1);
-            transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 @keyframes scale-up-center {
   0% {
     -webkit-transform: translate(-50%, -50%) scale(0.5);
-            transform: translate(-50%, -50%) scale(0.5);
+    transform: translate(-50%, -50%) scale(0.5);
   }
   100% {
     -webkit-transform: translate(-50%, -50%) scale(1);
-            transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", "Montserrat", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #000;
