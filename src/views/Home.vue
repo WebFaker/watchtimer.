@@ -25,9 +25,16 @@
             v-for="(i, e) in animeResults"
             :key="e"
             hoverable
-            style="margin: 10px; width: 240px"
+            style="margin: 10px; width: 240px; position: relative;"
           >
-            <img :src="i.image_url" :alt="i.title" slot="cover" />
+            <a-icon v-if="favCharId === i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="filled" />
+            <a-icon v-else @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="twoTone" />
+            <img
+              style="height: 370px; object-fit: contain; object-position: 50% 0%"
+              :src="i.image_url"
+              :alt="i.title"
+              slot="cover"
+            />
             <a-card-meta :title="i.title">
               <template slot="description">
                 <p v-if="searchType == 'anime'">
@@ -149,6 +156,7 @@
 <script>
 import Vue from "vue";
 const jikanjs = require("jikanjs");
+import firebase from "firebase";
 
 export default {
   name: "home",
@@ -174,6 +182,8 @@ export default {
       searchValue: "",
       searchType: "anime",
 
+      favCharId: this.$store.state.userdb.favChar,
+
       modal: {
         name: "",
         japanese: "",
@@ -193,7 +203,20 @@ export default {
         this.topResults = response.top;
       });
   },
+  mounted() {
+    console.log(this.$store.state.userdb.favChar)
+  },
   methods: {
+    toggleFav(value) {
+      let user = firebase.auth().currentUser;
+      firebase
+      .database()
+      .ref("users/" + user.uid)
+      .update({
+        favChar: value
+      });
+      this.favCharId = value
+    },
     increase(value) {
       if (this.currentEpisode === value) {
         this.currentEpisode + 0;
@@ -275,7 +298,7 @@ export default {
           this.show = true;
         }, 4000);
     }
-  }
+  },
 };
 </script>
 

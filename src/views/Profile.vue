@@ -183,7 +183,6 @@ export default {
   methods: {
     toggleEdit() {
       if (this.isEdit === false) {
-        console.log(this.favChar);
         this.isEdit = true;
       } else {
         this.isEdit = false;
