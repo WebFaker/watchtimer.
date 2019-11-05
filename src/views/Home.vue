@@ -157,6 +157,7 @@
 import Vue from "vue";
 const jikanjs = require("jikanjs");
 import firebase from "firebase";
+import { message } from 'ant-design-vue'
 
 export default {
   name: "home",
@@ -203,9 +204,6 @@ export default {
         this.topResults = response.top;
       });
   },
-  mounted() {
-    console.log(this.$store.state.userdb.favChar)
-  },
   methods: {
     toggleFav(value) {
       let user = firebase.auth().currentUser;
@@ -215,6 +213,7 @@ export default {
       .update({
         favChar: value
       });
+      message.success("You just set this character as your favourite character.");
       this.favCharId = value
       sessionStorage.favCharId = value
     },

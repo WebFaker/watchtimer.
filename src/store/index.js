@@ -7,7 +7,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     userdb: "",
-    user: ""
+    user: "",
+    userList: ""
   },
   mutations: {
     setUserDb(state, userInformations) {
@@ -16,6 +17,9 @@ export default new Vuex.Store({
     },
     setUser(state, user) {
       state.user = user;
+    },
+    setUserList(state, userList) {
+      state.userList = userList;
     }
   },
   actions: {
@@ -37,6 +41,14 @@ export default new Vuex.Store({
           localStorage.isLogged = false;
         }
       });
+    },
+    updateUserList({ commit }) {
+      return firebase
+        .database()
+        .ref("/users")
+        .on("value", function(snapshot) {
+          commit("setUserList", snapshot.val());
+        });
     }
   },
   modules: {}

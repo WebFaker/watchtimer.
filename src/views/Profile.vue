@@ -287,8 +287,8 @@ export default {
     }
   },
   mounted() {
-    console.log(this.$store.state.userdb);
-    if (this.favCharId) {
+    console.log(this.favCharId);
+    if (this.favCharId !== undefined) {
       jikanjs
         .loadCharacter(this.favCharId)
         .then(response => {

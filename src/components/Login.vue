@@ -290,6 +290,7 @@ export default {
               .ref("users")
               .child(userID)
               .set({
+                uid: userID,
                 displayName: username,
                 email: signUpEmail,
                 photoURL:
@@ -308,7 +309,7 @@ export default {
                   .auth()
                   .setPersistence(firebase.auth.Auth.Persistence.LOCAL);
                 localStorage.isLogged = true;
-                window.location.href = "./profile";
+                window.location.href = "./";
               });
           },
           function(err) {
