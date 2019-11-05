@@ -14,7 +14,8 @@
         <a-dropdown v-if="isLogged === 'true'">
           <span style="display: flex; align-items: center;">{{ $store.state.userdb.displayName }}<a-avatar style="margin-left: 5px;" :src="$store.state.userdb.photoURL" /></span>
           <a-menu slot="overlay">
-            <a-menu-item key="1"><router-link to="/profile"><a-icon type="user" /> Profile</router-link></a-menu-item>
+            <a-menu-item key="1"><router-link to="/profile/:id"><a-icon type="user" /> Profile</router-link></a-menu-item>
+            <a-menu-item key="1"><router-link to="/friends"><a-icon type="team" /> Friends</router-link></a-menu-item>
             <a-menu-item key="2"><router-link to="/settings"><a-icon type="setting" /> Settings</router-link></a-menu-item>
             <a-menu-item key="3" @click="signOut"><a-icon type="logout" /> Log out</a-menu-item>
           </a-menu>

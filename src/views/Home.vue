@@ -27,7 +27,7 @@
             hoverable
             style="margin: 10px; width: 240px; position: relative;"
           >
-            <a-icon v-if="favCharId === i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="filled" />
+            <a-icon v-if="favCharId == i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="filled" />
             <a-icon v-else @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="twoTone" />
             <img
               style="height: 370px; object-fit: contain; object-position: 50% 0%"
@@ -87,7 +87,7 @@
             </div>
             <a-collapse v-if="searchType === 'anime'" style="margin-top: 25px;" :bordered="false">
               <a-collapse-panel header="Synopsis :" key="1">
-                <p>{{ modal.synopsis }}</p>
+                <p style="white-space: pre-wrap;">{{ modal.synopsis }}</p>
               </a-collapse-panel>
             </a-collapse>
             <a-collapse
@@ -96,7 +96,7 @@
               :bordered="false"
             >
               <a-collapse-panel header="About :" key="1">
-                <p>{{ modal.synopsis }}</p>
+                <p style="white-space: pre-wrap;">{{ modal.synopsis }}</p>
               </a-collapse-panel>
               <a-collapse-panel header="Appears in :" key="2">
                 <p v-for="(anime, h) in modal.animeography" :key="h">{{ anime.name }}</p>
@@ -182,7 +182,7 @@ export default {
       searchValue: "",
       searchType: "anime",
 
-      favCharId: this.$store.state.userdb.favChar,
+      favCharId: sessionStorage.favCharId,
 
       modal: {
         name: "",
@@ -216,6 +216,7 @@ export default {
         favChar: value
       });
       this.favCharId = value
+      sessionStorage.favCharId = value
     },
     increase(value) {
       if (this.currentEpisode === value) {

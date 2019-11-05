@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 import Login from "../views/Login.vue";
 import Profile from "../views/Profile.vue";
+import Friends from "../views/Friends.vue";
 import Settings from "../views/Settings.vue";
 
 Vue.use(VueRouter);
@@ -19,9 +20,14 @@ const routes = [
     component: Login
   },
   {
-    path: "/profile",
+    path: "/profile/:id",
     name: "profile",
     component: Profile
+  },
+  {
+    path: "/friends",
+    name: "friends",
+    component: Friends
   },
   {
     path: "/settings",

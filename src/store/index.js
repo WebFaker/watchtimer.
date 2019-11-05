@@ -12,6 +12,7 @@ export default new Vuex.Store({
   mutations: {
     setUserDb(state, userInformations) {
       state.userdb = userInformations;
+      sessionStorage.favCharId = userInformations.favChar;
     },
     setUser(state, user) {
       state.user = user;

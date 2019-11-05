@@ -164,21 +164,12 @@ export default {
       picture: null,
       uploadValue: 0,
       previewURL: "",
+      favCharId: sessionStorage.favCharId,
       favChar: ""
     };
   },
   beforeCreate() {
     this.bform = this.$form.createForm(this, { name: "edit" });
-    if (this.$store.state.userdb.favChar) {
-      jikanjs
-        .loadCharacter(this.$store.state.userdb.favChar)
-        .then(response => {
-          this.favChar = response;
-        })
-        .catch(err => {
-          console.error(err); // in case a error happens
-        });
-    }
   },
   methods: {
     toggleEdit() {
@@ -295,7 +286,19 @@ export default {
       }
     }
   },
-  mounted() {}
+  mounted() {
+    console.log(this.$store.state.userdb);
+    if (this.favCharId) {
+      jikanjs
+        .loadCharacter(this.favCharId)
+        .then(response => {
+          this.favChar = response;
+        })
+        .catch(err => {
+          console.error(err); // in case a error happens
+        });
+    }
+  }
 };
 </script>
 
