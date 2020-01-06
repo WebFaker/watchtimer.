@@ -27,8 +27,8 @@
             hoverable
             style="margin: 10px; width: 240px; position: relative;"
           >
-            <a-icon v-if="favCharId == i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="filled" />
-            <a-icon v-else @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="twoTone" />
+            <a-icon v-if="isLogged === true && favCharId == i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="filled" />
+            <a-icon v-if="isLogged === true && favCharId !== i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="twoTone" />
             <img
               style="height: 370px; object-fit: contain; object-position: 50% 0%"
               :src="i.image_url"
@@ -163,6 +163,8 @@ export default {
   name: "home",
   data() {
     return {
+      isLogged: localStorage.isLogged,
+
       percent: 0,
       currentEpisode: 0,
 
@@ -184,6 +186,7 @@ export default {
       searchType: "anime",
 
       favCharId: sessionStorage.favCharId,
+      getFavChar: '',
 
       modal: {
         name: "",
@@ -206,12 +209,19 @@ export default {
   },
   methods: {
     toggleFav(value) {
+      jikanjs.loadCharacter(value).then(response => {
+        this.getFavChar = response
+        console.log(response)
+        console.log(this.getFavChar)
+      });
       let user = firebase.auth().currentUser;
       firebase
       .database()
-      .ref("users/" + user.uid)
+      .ref("users/" + user.uid + "/favChar")
       .update({
-        favChar: value
+        name: this.getFavChar.name,
+        photoUrl: this.getFavChar.image_url,
+        mal_id: this.getFavChar.mal_id
       });
       message.success("You just set this character as your favourite character.");
       this.favCharId = value

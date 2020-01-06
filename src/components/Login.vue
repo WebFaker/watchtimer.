@@ -205,9 +205,12 @@
 <script>
 import firebase from "firebase";
 import { message } from "ant-design-vue";
+var moment = require("moment");
 
 export default {
   name: "Login",
+  components: {
+  },
   data() {
     return {
       userLogged: false,
@@ -223,6 +226,12 @@ export default {
       resetEmail: ""
     };
   },
+  // validations: {
+  //   signUpEmail: {
+  //     required,
+  //     minLength: minLength(4)
+  //   },
+  // },
   beforeCreate() {
     this.form = this.$form.createForm(this, { name: "register" });
     this.aform = this.$form.createForm(this, { name: "normal_login" });
@@ -264,13 +273,29 @@ export default {
         .auth()
         .signInWithEmailAndPassword(this.signInEmail, this.signInPassword)
         .then(function() {
-          firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-          localStorage.isLogged = true;
-          window.location.href = "./";
         })
         .catch(function(error) {
           message.error("Oops, " + error.message);
         });
+        if (this.$store.state.userList[firebase.auth().currentUser.uid].flag === "active") {
+            firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+            localStorage.isLogged = true;
+            window.location.href = "./";
+        } else if (this.$store.state.userList[firebase.auth().currentUser.uid].flag === "disabled") {
+          firebase.auth().signOut()
+          .then(function() {
+            message.error(
+              "Disabled"
+            );
+          })
+        } else if (this.$store.state.userList[firebase.auth().currentUser.uid].flag === "deleted") {
+          firebase.auth().signOut()
+          .then(function() {
+            message.error(
+              "Deleted"
+            );
+          })
+        }
     },
     signUp() {
       var signUpEmail = this.form.getFieldValue("signUpEmail");
@@ -295,7 +320,17 @@ export default {
                 email: signUpEmail,
                 photoURL:
                   "https://api.adorable.io/avatars/285" + username + ".png",
-                bio: "Je viens d'arriver, merci de bien m'accueillir !"
+                bio: "Je viens d'arriver, merci de bien m'accueillir !",
+                createdAt: moment().format("LL"),
+                flag: "active",
+                friends: {
+                  following: {
+                    userID: userID
+                  },
+                  followed: {
+                    userID: userID
+                  }
+                }
               })
               .catch(function(error) {
                 console.error(error);
