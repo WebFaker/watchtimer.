@@ -27,8 +27,34 @@
             hoverable
             style="margin: 10px; width: 240px; position: relative;"
           >
-            <a-icon v-if="isLogged === 'true' && $store.state.userList[$store.state.userdb.uid].favChar.mal_id == i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="filled" />
-            <a-icon v-if="isLogged === 'true' && $store.state.userList[$store.state.userdb.uid].favChar.mal_id !== i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="twoTone" />
+            <div v-if="searchType == 'anime'">
+              <a-icon
+                v-if="isLogged === 'true' && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + i.mal_id) === false && isAdding == false"
+                @click.stop="addAnime(i)"
+                style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;"
+                twoToneColor="FF0000"
+                type="heart"
+                theme="twoTone"
+              />
+              <a-spin
+                v-if="isLogged === 'true' && isAdding == true"
+                style="position: absolute; top: 10px; right: 10px;"
+              >
+                <a-icon slot="indicator" type="loading" style="font-size: 24px; color: #ffd500; font-size: 20px;" spin />
+              </a-spin>
+              <a-icon
+                v-if="isLogged === 'true' && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + i.mal_id) === true && isAdding == false"
+                @click.stop="addAnime(i)"
+                style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;"
+                twoToneColor="FF0000"
+                type="heart"
+                theme="filled"
+              />
+            </div>
+            <div v-if="searchType == 'character'">
+              <a-icon v-if="isLogged === 'true' && $store.state.userList[$store.state.userdb.uid].favChar.mal_id == i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="filled" />
+              <a-icon v-if="isLogged === 'true' && $store.state.userList[$store.state.userdb.uid].favChar.mal_id !== i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="twoTone" />
+            </div>
             <img
               style="height: 370px; object-fit: contain; object-position: 50% 0%"
               :src="i.image_url"
@@ -116,8 +142,28 @@
           hoverable
           style="margin: 10px; width: 240px; position: relative"
         >
-          <a-icon v-if="isLogged === 'true' && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + top.mal_id) === false" @click.stop="addAnime(top)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="twoTone" />
-          <a-icon v-if="isLogged === 'true' && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + top.mal_id) === true" @click.stop="addAnime(top)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="filled" />
+          <a-icon
+            v-if="isLogged === 'true' && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + top.mal_id) === false && isAdding == false"
+            @click.stop="addAnime(top)"
+            style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;"
+            twoToneColor="FF0000"
+            type="heart"
+            theme="twoTone"
+          />
+          <a-spin
+            v-if="isLogged === 'true' && isAdding == true"
+            style="position: absolute; top: 10px; right: 10px;"
+          >
+            <a-icon slot="indicator" type="loading" style="font-size: 24px; color: #ffd500; font-size: 20px;" spin />
+          </a-spin>
+          <a-icon
+            v-if="isLogged === 'true' && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + top.mal_id) === true && isAdding == false"
+            @click.stop="addAnime(top)"
+            style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;"
+            twoToneColor="FF0000"
+            type="heart"
+            theme="filled"
+          />
           <img
             style="height: 370px; object-fit: contain; object-position: 50% 0%"
             :src="top.image_url"
@@ -165,6 +211,8 @@ export default {
   data() {
     return {
       isLogged: localStorage.isLogged,
+
+      isAdding: false,
 
       percent: 0,
       currentEpisode: 0,
@@ -216,6 +264,7 @@ export default {
   methods: {
     addAnime(value) {
       if (Object.keys(this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes).includes('anime' + value.mal_id) === false) {
+        this.isAdding = true
         jikanjs.loadAnime(value.mal_id).then(response => {
           let user = firebase.auth().currentUser;
           var title = response.title
@@ -224,18 +273,43 @@ export default {
           .ref("users/" + user.uid + "/watchedAnimes/" + 'anime' + response.mal_id)
           .update({
             name: response.title,
+            type: response.type,
+            source: response.source,
+            episodes: response.episodes,
+            status: response.status,
+            airing: response.airing,
+            aired: response.aired,
+            duration: response.duration,
+            rating: response.rating,
+            score: response.score,
+            synopsis: response.synopsis,
+            premiered: response.premiered,
+            broadcast: response.broadcast,
+            related: response.related,
+            producers: response.producers,
+            studios: response.studios,
+            genres: response.genres,
+            openings: response.opening_themes,
+            endings: response.ending_themes,
             photoUrl: response.image_url,
             mal_id: response.mal_id,
             watched: 0
+          })
+          .then(function(){
+            message.success("You just added " + title + " to your watchlist.");
           });
-          message.success("You just added " + title + " to your watchlist.");
+          this.isAdding = false
         });
       } else {
+        this.isAdding = true
         firebase
           .database()
           .ref().child("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + value.mal_id)
           .remove()
-          message.success("You just removed " + value.title + " of your watchlist.");
+          .then(function(){
+            message.success("You just removed " + value.title + " of your watchlist.");
+          });
+        this.isAdding = false
       }
     },
     toggleFav(value) {
