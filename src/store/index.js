@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import firebase from "firebase";
+import createPersistedState from 'vuex-persistedstate';
 
 Vue.use(Vuex);
 
@@ -10,6 +11,7 @@ export default new Vuex.Store({
     user: "",
     userList: ""
   },
+  plugins: [createPersistedState()],
   mutations: {
     setUserDb(state, userInformations) {
       state.userdb = userInformations;
@@ -27,10 +29,10 @@ export default new Vuex.Store({
         if (user) {
           localStorage.isLogged = true;
           commit("setUser", user);
-          var userId = firebase.auth().currentUser.uid;
+          var userID = firebase.auth().currentUser.uid;
           return firebase
             .database()
-            .ref("/users/" + userId)
+            .ref("/users/" + userID)
             .once("value")
             .then(function(snapshot) {
               commit("setUserDb", snapshot.val());
