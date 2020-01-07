@@ -1,309 +1,368 @@
 <template>
-  <div>
-    <a-popover trigger="click" placement="bottomRight">
-      <template slot="content">
-        <a-form
-          v-if="logStatus==='login'"
-          id="components-form-demo-normal-login"
-          :form="aform"
-          class="login-form"
-          @submit="handleSubmit"
+  <a-card title="Watchtimer. - Login" style="width: 320px;">
+    <a-form
+      v-if="logStatus === 'login'"
+      id="components-form-demo-normal-login"
+      :form="aform"
+      class="login-form"
+      @submit="handleSubmit"
+    >
+      <router-link to="/">
+        <span><a-icon type="left" /> Back to site</span>
+      </router-link>
+      <a-form-item label="E-mail">
+        <a-input
+          v-decorator="[
+            'signInEmail',
+            { rules: [{ required: true, message: 'Please input your email!' }] }
+          ]"
+          placeholder="Email"
         >
-          <a-form-item label="E-mail">
-            <a-input
-              v-decorator="[
-                'signInEmail',
-                { rules: [{ required: true, message: 'Please input your email!' }] },
-              ]"
-              placeholder="Email"
-            >
-              <a-icon slot="prefix" type="mail" style="color: rgba(0,0,0,.25)" />
-            </a-input>
-          </a-form-item>
-          <a-form-item label="Password">
-            <a-input
-              v-decorator="[
-                'signInPassword',
-                { rules: [{ required: true, message: 'Please input your password !' }] },
-              ]"
-              type="password"
-              placeholder="Password"
-            >
-              <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
-            </a-input>
-          </a-form-item>
-          <a-form-item>
-            <a-checkbox
-              v-decorator="[
-                'remember',
+          <a-icon slot="prefix" type="mail" style="color: rgba(0,0,0,.25)" />
+        </a-input>
+      </a-form-item>
+      <a-form-item label="Password">
+        <a-input
+          v-decorator="[
+            'signInPassword',
+            {
+              rules: [
                 {
-                  valuePropName: 'checked',
-                  initialValue: true,
-                },
-              ]"
-            >
-              Remember me
-            </a-checkbox>
-            <a-button @click="toggleReset" class="login-form-forgot" type="link">
-              Forgot password
-            </a-button>
-            <a-button @click="signIn" type="primary" html-type="submit" class="login-form-button">
-              Log in
-            </a-button>
-            Or
-            <a-button @click="toggleRegister" type="link">
-              register now
-            </a-button>
-          </a-form-item>
-        </a-form>
-        <a-form
-          v-if="logStatus==='register'"
-          id="components-form-demo-register"
-          :form="form"
-          @submit="handleSubmit"
+                  required: true,
+                  message: 'Please input your password !'
+                }
+              ]
+            }
+          ]"
+          type="password"
+          placeholder="Password"
         >
-          <a-icon @click="toggleLogin" type="left" />
-          <a-form-item label="Email">
-            <a-input
-              placeholder="Email"
-              v-decorator="[
-                'signUpEmail',
-                {
-                  rules: [
-                    {
-                      type: 'email',
-                      message: 'The input is not valid E-mail!',
-                    },
-                    {
-                      required: true,
-                      message: 'Please input your E-mail!',
-                    },
-                  ],
-                },
-              ]"
-            >
-              <a-icon slot="prefix" type="mail" style="color: rgba(0,0,0,.25)" />
-            </a-input>
-          </a-form-item>
-          <a-form-item label="Password">
-            <a-input
-              placeholder="Password"
-              v-decorator="[
-                'signUpPassword',
-                {
-                  rules: [
-                    {
-                      required: true,
-                      message: 'Please input your password!',
-                    },
-                    {
-                      validator: validateToNextPassword,
-                    },
-                  ],
-                },
-              ]"
-              type="password"
-            >
-              <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
-            </a-input>
-          </a-form-item>
-          <a-form-item label="Confirm Password">
-            <a-input
-              placeholder="Confirm your password"
-              v-decorator="[
-                'confirm',
-                {
-                  rules: [
-                    {
-                      required: true,
-                      message: 'Please confirm your password!',
-                    },
-                    {
-                      validator: compareToFirstPassword,
-                    },
-                  ],
-                },
-              ]"
-              type="password"
-              @blur="handleConfirmBlur"
-            />
-          </a-form-item>
-          <a-form-item>
-            <span slot="label">
-              Nickname
-            </span>
-            <a-input
-              placeholder="Nickname"
-              v-decorator="[
-                'signUpDisplayName',
-                {
-                  rules: [{ required: true, message: 'Please input your nickname!', whitespace: true }],
-                },
-              ]"
-            />
-          </a-form-item>
-          <a-form-item>
-            <a-button @click="toggleReset" class="login-form-forgot" type="link">
-              Forgot password
-            </a-button>
-            <a-button @click="signUp" type="primary" html-type="submit">
-              Register
-            </a-button>
-            Or
-            <a-button @click="toggleRegister" type="link">
-              log in
-            </a-button>
-          </a-form-item>
-        </a-form>
-        <a-form
-          v-if="logStatus==='reset'"
-          id="components-form-demo-reset"
-          :form="bform"
-          class="login-form"
-          @submit="handleSubmit"
+          <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
+        </a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-button @click="toggleReset" type="link">
+          Forgot password
+        </a-button>
+        <a-button
+          @click="signIn"
+          type="primary"
+          html-type="submit"
+          class="login-form-button"
         >
-          <a-icon @click="toggleLogin" type="left" />
-          <a-form-item>
-            <a-input
-              v-decorator="[
-                'resetEmail',
-                { rules: [{ required: true, message: 'Please input your email!' }] },
-              ]"
-              placeholder="Enter your email address."
-            >
-              <a-icon slot="prefix" type="mail" style="color: rgba(0,0,0,.25)" />
-            </a-input>
-          </a-form-item>
-          <a-form-item>
-            <a-button @click="reset" type="primary" html-type="submit">
-              Reset now !
-            </a-button>
-          </a-form-item>
-        </a-form>
-      </template>
-      <a-button type="link" v-if="!userLogged">Login</a-button>
-    </a-popover>
-    <a-button type="link" @click="signOut" v-if="userLogged">Log out</a-button>
-  </div>
+          Log in
+        </a-button>
+        Or
+        <a-button @click="toggleRegister" type="link">
+          register now
+        </a-button>
+      </a-form-item>
+    </a-form>
+    <a-form
+      v-if="logStatus === 'register'"
+      id="components-form-demo-register"
+      :form="form"
+      @submit="handleSubmit"
+    >
+      <span style="cursor: pointer;" @click="toggleLogin">
+        <a-icon type="left" /> Login
+      </span>
+      <a-form-item label="Email">
+        <a-input
+          placeholder="Email"
+          v-decorator="[
+            'signUpEmail',
+            {
+              rules: [
+                {
+                  type: 'email',
+                  message: 'The input is not valid E-mail!'
+                },
+                {
+                  required: true,
+                  message: 'Please input your E-mail!'
+                }
+              ]
+            }
+          ]"
+        >
+          <a-icon slot="prefix" type="mail" style="color: rgba(0,0,0,.25)" />
+        </a-input>
+      </a-form-item>
+      <a-form-item label="Password">
+        <a-input
+          placeholder="Password"
+          v-decorator="[
+            'signUpPassword',
+            {
+              rules: [
+                {
+                  required: true,
+                  message: 'Please input your password!'
+                },
+                {
+                  validator: validateToNextPassword
+                }
+              ]
+            }
+          ]"
+          type="password"
+        >
+          <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
+        </a-input>
+      </a-form-item>
+      <a-form-item label="Confirm password">
+        <a-input
+          placeholder="Confirm your password"
+          v-decorator="[
+            'confirm',
+            {
+              rules: [
+                {
+                  required: true,
+                  message: 'Please confirm your password!'
+                },
+                {
+                  validator: compareToFirstPassword
+                }
+              ]
+            }
+          ]"
+          type="password"
+          @blur="handleConfirmBlur"
+        >
+          <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
+        </a-input>
+      </a-form-item>
+      <a-form-item label="Nickname">
+        <a-input
+          placeholder="Nickname"
+          v-decorator="[
+            'signUpDisplayName',
+            {
+              rules: [
+                {
+                  required: true,
+                  message: 'Please input your nickname!',
+                  whitespace: true
+                }
+              ]
+            }
+          ]"
+        >
+          <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)" />
+        </a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-button @click="toggleReset" class="login-form-forgot" type="link">
+          Forgot password
+        </a-button>
+        <a-button
+          style="width: 100%;"
+          @click="signUp"
+          type="primary"
+          html-type="submit"
+          class="login-form-button"
+        >
+          Register
+        </a-button>
+        Or
+        <a-button @click="toggleLogin" type="link">
+          log in
+        </a-button>
+      </a-form-item>
+    </a-form>
+    <a-form
+      v-if="logStatus === 'reset'"
+      id="components-form-demo-reset"
+      :form="bform"
+      class="login-form"
+      @submit="handleSubmit"
+    >
+      <span style="cursor: pointer;" @click="toggleLogin">
+        <a-icon type="left" /> Login
+      </span>
+      <a-form-item label="Enter your email">
+        <a-input
+          v-decorator="[
+            'resetEmail',
+            { rules: [{ required: true, message: 'Please input your email!' }] }
+          ]"
+          placeholder="Enter your email address."
+        >
+          <a-icon slot="prefix" type="mail" style="color: rgba(0,0,0,.25)" />
+        </a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-button @click="reset" type="primary" html-type="submit">
+          Reset now !
+        </a-button>
+      </a-form-item>
+    </a-form>
+  </a-card>
 </template>
 
 <script>
-import firebase from 'firebase'
-import { message } from 'ant-design-vue'
+import firebase from "firebase";
+import { message } from "ant-design-vue";
 
 export default {
-  name: 'Login',
-  data () {
+  name: "Login",
+  components: {
+  },
+  data() {
     return {
       userLogged: false,
-      logStatus: 'login',
+      logStatus: "login",
 
-      signUpDisplayName: '',
-      signUpEmail: '',
-      signUpPassword: '',
+      signUpDisplayName: "",
+      signUpEmail: "",
+      signUpPassword: "",
 
-      signInEmail: '',
-      signInPassword: '',
+      signInEmail: "",
+      signInPassword: "",
 
-      resetEmail: ''
-    }
+      resetEmail: ""
+    };
   },
-  beforeCreate () {
-    this.form = this.$form.createForm(this, { name: 'register' })
-    this.aform = this.$form.createForm(this, { name: 'normal_login' })
-    this.bform = this.$form.createForm(this, { name: 'reset' })
-  },
-  mounted () {
-    firebase.auth().onAuthStateChanged(function (user) {
-      if (user) {
-        // User is signed in.
-        this.userLogged = true
-      } else {
-        // No user is signed in.
-        this.userLogged = false
-      }
-    })
+  // validations: {
+  //   signUpEmail: {
+  //     required,
+  //     minLength: minLength(4)
+  //   },
+  // },
+  beforeCreate() {
+    this.form = this.$form.createForm(this, { name: "register" });
+    this.aform = this.$form.createForm(this, { name: "normal_login" });
+    this.bform = this.$form.createForm(this, { name: "reset" });
   },
   methods: {
-    toggleLogin () {
-      this.logStatus = 'login'
+    toggleLogin() {
+      this.logStatus = "login";
     },
-    toggleReset () {
-      this.logStatus = 'reset'
+    toggleReset() {
+      this.logStatus = "reset";
     },
-    toggleRegister () {
-      this.logStatus = 'register'
+    toggleRegister() {
+      this.logStatus = "register";
     },
-    handleConfirmBlur (e) {
-      const value = e.target.value
-      this.confirmDirty = this.confirmDirty || !!value
+    handleConfirmBlur(e) {
+      const value = e.target.value;
+      this.confirmDirty = this.confirmDirty || !!value;
     },
-    compareToFirstPassword (rule, value, callback) {
-      const form = this.form
-      if (value && value !== form.getFieldValue('signUpPassword')) {
-        callback('Two passwords that you enter is inconsistent!')
+    compareToFirstPassword(rule, value, callback) {
+      const form = this.form;
+      if (value && value !== form.getFieldValue("signUpPassword")) {
+        callback("Two passwords that you enter is inconsistent!");
       } else {
-        callback()
+        callback();
       }
     },
-    validateToNextPassword (rule, value, callback) {
+    validateToNextPassword(rule, value, callback) {
       const form = this.form;
       if (value && this.confirmDirty) {
-        form.validateFields(['confirm'], { force: true })
+        form.validateFields(["confirm"], { force: true });
       }
-      callback ();
+      callback();
     },
-    signIn () {
-      this.signInEmail = this.aform.getFieldValue('signInEmail')
-      this.signInPassword = this.aform.getFieldValue('signInPassword')
-      firebase.auth().signInWithEmailAndPassword(this.signInEmail, this.signInPassword)
-      .then(function(user) {
-        message.success('Welcome, ' + user.user.displayName + '.')
-        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-      })
-      .catch(function(error) {
-        message.error('Oops, ' + error.message)
-      });
+    signIn() {
+      this.signInEmail = this.aform.getFieldValue("signInEmail");
+      this.signInPassword = this.aform.getFieldValue("signInPassword");
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(this.signInEmail, this.signInPassword)
+        .then(function() {
+          firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+          localStorage.isLogged = true;
+          var userID = firebase.auth().currentUser.uid;
+          var lastSigned = firebase.auth().currentUser.metadata.lastSignInTime;
+          firebase
+            .database()
+            .ref("users/" + userID)
+            .update({
+              lastSigned: lastSigned,
+            })
+          window.location.href = "../";
+        })
+        .catch(function(error) {
+          message.error("Oops, " + error.message);
+        });
     },
     signUp() {
-      this.signUpEmail = this.form.getFieldValue('signUpEmail')
-      this.signUpPassword = this.form.getFieldValue('signUpPassword')
-      let username = this.form.getFieldValue('signUpDisplayName')
-      firebase.auth().createUserWithEmailAndPassword(this.signUpEmail, this.signUpPassword)
+      var signUpEmail = this.form.getFieldValue("signUpEmail");
+      var signUpPassword = this.form.getFieldValue("signUpPassword");
+      let username = this.form.getFieldValue("signUpDisplayName");
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(signUpEmail, signUpPassword)
         .then(function (user) { // eslint-disable-line
-          firebase.auth().currentUser.updateProfile ({
-            displayName: username,
-          });
-          firebase.auth().currentUser.sendEmailVerification()
-          alert('Account successfully created !')
-        },
-        function (err) {
-          alert('Oops. ' + err.message)
-        }
-      );
-    },
-    signOut() {
-      firebase.auth().signOut()
-      .then(function() {
-        // Sign-out successful.
-        message.success('Successfully logged out !')
-      })
-      .catch(function(error) {
-        // An error happened
-        message.error('An error occured, please try again.' + error)
-      });
+            firebase.auth().currentUser.updateProfile({
+              displayName: username,
+            });
+            var userID = firebase.auth().currentUser.uid;
+            var creationTime = firebase.auth().currentUser.metadata.creationTime;
+            var lastSigned = firebase.auth().currentUser.metadata.lastSignInTime;
+            firebase
+              .database()
+              .ref("users")
+              .child(userID)
+              .set({
+                uid: userID,
+                displayName: username,
+                email: signUpEmail,
+                photoURL:
+                  "https://api.adorable.io/avatars/285" + username + ".png",
+                bio: "I'm new here, I hope we'll be friends !",
+                createdAt: creationTime,
+                lastSigned: lastSigned,
+                flag: "active",
+                friends: {
+                  following: {
+                    [userID]: userID
+                  },
+                  followed: {
+                    [userID]: userID
+                  }
+                },
+                watchedAnimes: {
+                  initialise: 1
+                }
+              })
+              .catch(function(error) {
+                console.error(error);
+              });
+            firebase.auth().currentUser.sendEmailVerification();
+            firebase
+              .auth()
+              .signInWithEmailAndPassword(signUpEmail, signUpPassword)
+              .then(function() {
+                firebase
+                  .auth()
+                  .setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+                localStorage.isLogged = true;
+                window.location.href = "./";
+              });
+          },
+          function(err) {
+            alert("Oops, " + err.message);
+          }
+        );
     },
     reset() {
-      this.resetEmail = this.bform.getFieldValue('resetEmail')
-      firebase.auth().sendPasswordResetEmail(this.resetEmail)
-      .then(function () {
-        message.success('An email with resetting details has just been sent. Please check your inbox.');
-      })
-      .catch(function(error) {
-        // Handle Errors here.
-        message.error(error.message);
-        // alert(error.code + ': ' + error.message);
-      });
+      this.resetEmail = this.bform.getFieldValue("resetEmail");
+      firebase
+        .auth()
+        .sendPasswordResetEmail(this.resetEmail)
+        .then(function() {
+          message.success(
+            "An email with resetting details has just been sent. Please check your inbox."
+          );
+        })
+        .catch(function(error) {
+          // Handle Errors here.
+          message.error(error.message);
+          // alert(error.code + ': ' + error.message);
+        });
     },
     handleSubmit(e) {
       e.preventDefault();
@@ -312,7 +371,7 @@ export default {
           console.log('Received values of form: ', values); // eslint-disable-line
         }
       });
-    },
+    }
   }
 };
 </script>

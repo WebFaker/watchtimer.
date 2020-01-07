@@ -1,28 +1,70 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Vue from "vue";
+import VueRouter from "vue-router";
+import Home from "@/views/Home.vue";
+import Login from "@/views/Login.vue";
+import Profile from "@/views/Profile.vue";
+import Follows from "@/views/Follows.vue";
+import Friends from "@/views/Friends.vue";
+import Settings from "@/views/Settings.vue";
+import notFound from "@/views/NotFound.vue"
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
   {
-    path: '/',
-    name: 'home',
-    component: Home
+    path: "/",
+    name: "home",
+    component: Home,
+    meta: {
+      title: 'Watchtimer. - Explore animes !',
+      metaTags: [
+        {
+          name: 'description',
+          content: 'Explore anime\'s worlds freely !'
+        },
+        {
+          property: 'og:description',
+          content: 'Explore anime\'s worlds freely !'
+        }
+      ]
+    }
   },
   {
-    path: '/about',
-    name: 'about'
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-  }
-]
+    path: "/login",
+    name: "login",
+    component: Login
+  },
+  {
+    path: "/profile/:id",
+    name: "profile",
+    component: Profile,
+  },
+  {
+    path: '/profile/:id/:follow',
+    name: "follows",
+    component: Follows
+  },
+  {
+    path: "/friends",
+    name: "friends",
+    component: Friends
+  },
+  {
+    path: "/settings",
+    name: "settings",
+    component: Settings
+  },
+  {
+    path: "*",
+    name: "404",
+    component: notFound
+  },
+];
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: "history",
   base: process.env.BASE_URL,
   routes
-})
+});
 
-export default router
+export default router;
