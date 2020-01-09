@@ -1,6 +1,83 @@
 <template>
   <div>
     <div v-if="this.$store.state.userdb.uid">
+      <a-modal v-model="detailsVisible" :title="detailsModal.title">
+        <template slot="footer">
+          <a-button disabled>
+            <span style="display: flex; align-items: center;">
+              <a-icon type="heart" />
+              <span style="margin-left: 5px;" class="desktop">
+                Favorite
+              </span>
+            </span>
+          </a-button>
+          <a-button @click.stop="addAnime(detailsModal)">
+            <span style="display: flex; align-items: center;">
+              <a-icon
+                v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + detailsModal.mal_id) === true"
+                style="color: #ffd500; font-size: 16px;"
+                type="eye"
+                theme="filled"
+              />
+              <a-icon
+                v-else
+                style="font-size: 16px; color: #ffd500"
+                type="eye"
+              />
+              <span style="margin-left: 5px;" class="desktop">
+                Watchlist
+              </span>
+            </span>
+          </a-button>
+          <a-button v-if="detailsModal.airing == false" @click.stop="addAnimeFinished(detailsModal)">
+            <span style="display: flex; align-items: center;">
+              <a-icon
+                v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + detailsModal.mal_id) === true && isAdding == false && $store.state.userList[$store.state.userdb.uid].watchedAnimes['anime' + detailsModal.mal_id].watched == detailsModal.episodes"
+                style="color: #008000; font-size: 16px;"
+                type="check"
+              />
+              <a-icon
+                v-else
+                style="font-size: 16px;"
+                type="check"
+              />
+              <span style="margin-left: 5px;" class="desktop"> 
+                Finished
+              </span>
+            </span>
+          </a-button>
+        </template>
+        <a-skeleton active :loading="loading">
+          <img :src="detailsModal.image_url" :alt="detailsModal.title">
+        </a-skeleton>
+        <div v-if="!loading && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + detailsModal.mal_id) === true">
+          <a-progress v-if="detailsModal.episodes" style="width: 100%;" :percent="($store.state.userList[$store.state.userdb.uid].watchedAnimes['anime' + detailsModal.mal_id].watched / detailsModal.episodes) * 100" :format="() => ''" />
+          <p>
+            <span>
+              {{ $store.state.userList[$store.state.userdb.uid].watchedAnimes['anime' + detailsModal.mal_id].watched }}
+            </span>
+            / {{ detailsModal.episodes || '?' }}
+          </p>
+        </div>
+        <div style="display: flex; align-items: center;">
+          <a-input-search
+            placeholder="What episode are you in ?"
+            @search="changeWatched"
+            type="number"
+            onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+          >
+            <a-button
+              slot="enterButton"
+            >
+              <a-icon
+                type="edit"
+              />
+            </a-button>
+          </a-input-search>
+          <a-button icon="minus" @click.stop="decline(detailsModal)" />
+          <a-button icon="plus" @click.stop="increase(detailsModal)" />
+        </div>
+      </a-modal>
       <div
         style="display: flex; justify-content: center; align-items: center; flex-direction: column;"
       >
@@ -100,7 +177,9 @@
             <div class="profile_main_informations">
               <div style="display: flex; align-items: center;">
                 <p style="margin-bottom: 0;" v-if="!edit">
-                  <span style="font-weight: bold;">{{ $store.state.userList[$route.params.id].displayName }}</span>
+                  <span style="font-weight: bold;">
+                    {{ $store.state.userList[$route.params.id].displayName }}
+                  </span>
                 </p>
                 <img
                   v-if="!edit && $store.state.user.emailVerified"
@@ -108,7 +187,9 @@
                   src="@/assets/checked.svg"
                   alt="User Approved"
                 />
-                <span v-if="$store.state.userdb.uid !== $route.params.id" style="font-size: 12px;">(last logged {{ moment($store.state.userList[$route.params.id].lastSigned).fromNow() }})</span>
+                <span v-if="$store.state.userdb.uid !== $route.params.id" style="font-size: 12px;">
+                  (last logged {{ moment($store.state.userList[$route.params.id].lastSigned).fromNow() }})
+                </span>
               </div>
               <div v-if="!edit" style="display: flex; height: 100%; flex-direction: column; justify-content: space-between;">
                 <div>
@@ -117,6 +198,9 @@
                     <span style="margin: 0 5px;">|</span>
                     <router-link :to="`${$route.params.id}/${'followed'}`">Followers : <span style="font-weight: bold">{{ Object.keys(this.$store.state.userList[this.$route.params.id].friends.followed).length - 1 }}</span></router-link>
                   </div>
+                  <p style="white-space: pre-wrap; margin-top: 1em;">
+                    <a-icon type="environment" /> {{ $store.state.userList[$route.params.id].location.country }}<span v-if="$store.state.userList[$route.params.id].location.other !== ''">, {{ $store.state.userList[$route.params.id].location.other }}</span>
+                  </p>
                   <p style="white-space: pre-wrap; margin-top: 1em;">
                     {{ $store.state.userList[$route.params.id].bio }}
                   </p>
@@ -153,15 +237,57 @@
                     />
                   </a-input>
                 </a-form-item>
+                <a-form-item label="Location">
+                  <a-select
+                    v-decorator="[
+                          'country',
+                          {
+                            rules: [
+                              {
+                                required: false
+                              }
+                            ],
+                            initialValue: $store.state.userList[$store.state.userdb.uid].location.country
+                          }
+                        ]" 
+                    style="float: left; width: 50%"
+                    showSearch
+                  >
+                    <a-select-option value="0">Somewhere</a-select-option>
+                    <a-select-option v-for="d in orderedCountries" :key="d">{{ d }}</a-select-option>
+                  </a-select>
+                  <a-input
+                    v-decorator="[
+                          'other',
+                          {
+                            rules: [
+                              {
+                                required: false
+                              }
+                            ],
+                            initialValue: $store.state.userList[$store.state.userdb.uid].location.other
+                          }
+                        ]"
+                    placeholder="Want to be more accurate ?"
+                    style="width: 50%"
+                  >
+                    <a-icon
+                      slot="prefix"
+                      type="environment"
+                      style="color: rgba(0,0,0,.25)"
+                    />
+                  </a-input>
+                </a-form-item>
                 <a-form-item label="Bio">
                   <a-textarea
+                    autosize
                     v-decorator="[
                       'bio',
                       {
                         initialValue: $store.state.userdb.bio
                       }
                     ]"
-                    placeholder="Nickname"
+                    placeholder="Tell us more about you"
                   >
                     <a-icon
                       slot="prefix"
@@ -193,15 +319,15 @@
               <a-button v-if="$route.params.id === $store.state.userdb.uid" @click="$router.push('/')" style="margin-bottom: 1em" type="primary">Go add some !</a-button>
               <img style="width: 100%;" src="https://media1.tenor.com/images/1f3e64eb5c24881b3d1b0c8cd54e4555/tenor.gif?itemid=11860845" alt="">
             </div>
-            <div class="anime-card_outside" v-else v-for="(anime, f) in $store.state.userList[$route.params.id].watchedAnimes" :key="f">
+            <div class="anime-card_outside" v-else v-for="(anime, f) in orderedWatchedAnimes" :key="f">
               <a-card
-                @click="showDetails(anime.uid)"
+                @click="showDetails(anime.mal_id)"
                 class="anime-card"
                 v-if="anime !== 1"
                 hoverable
-                style="position: relative"
+                style="position: relative; cursor: pointer;"
               >
-                <a-button @click.stop="addAnime(anime)" size="small" style="position: absolute; top: 10px; right: 10px;">
+                <a-button @click.stop="addAnime(anime)" size="small" style="position: absolute; top: 5px; right: 5px;">
                 <a-icon
                   v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + anime.mal_id) === false && isAdding == false"
                   style="color: #ffd500; font-size: 20px;"
@@ -227,10 +353,10 @@
                 />
                 </a-button>
                 <div style="width: 100%; position: absolute; bottom: 0px;">
-                  <a-tag style="margin: 0 5px;">
+                  <a-tag style="margin: 5px">
                     {{ $store.state.userList[$route.params.id].watchedAnimes['anime' + anime.mal_id].watched }} / {{ anime.episodes || '?' }}
                   </a-tag>
-                  <a-progress v-if="anime.airing == false" style="width: 100%;" :percent="($store.state.userList[$route.params.id].watchedAnimes['anime' + anime.mal_id].watched / anime.episodes) * 100" :format="() => ''" />
+                  <a-progress v-if="anime.airing === false" style="width: 100%;" :percent="($store.state.userList[$route.params.id].watchedAnimes['anime' + anime.mal_id].watched / anime.episodes) * 100" :format="() => ''" />
                 </div>
                 <img
                   class="anime-card_img"
@@ -278,9 +404,9 @@
             <div style="display: flex; height: 100%; flex-direction: column; justify-content: space-between;">
               <div>
                 <div style="display: flex;">
-                  <p style="margin: 0;">Following : <span style="font-weight: bold">{{ Object.keys($store.state.userList[$store.state.userdb.uid].friends.following).length - 1 }}</span></p>
+                  <p style="margin: 0;">Following : <span style="font-weight: bold">{{ Object.keys($store.state.userList[$route.params.id].friends.following).length - 1 }}</span></p>
                   <span style="margin: 0 5px;">|</span>
-                  <p style="margin: 0;">Followers : <span style="font-weight: bold">{{ Object.keys($store.state.userList[$store.state.userdb.uid].friends.followed).length - 1 }}</span></p>
+                  <p style="margin: 0;">Followers : <span style="font-weight: bold">{{ Object.keys($store.state.userList[$route.params.id].friends.followed).length - 1 }}</span></p>
                 </div>
                 <p style="white-space: pre-wrap; margin-top: 1em;">
                   {{ $store.state.userList[$route.params.id].bio }}
@@ -299,58 +425,41 @@
         <img style="width: 100%;" src="https://media.giphy.com/media/zOsBDA2n43HPO/giphy.gif" alt="">
       </a-card>
     </div>
-    <a-modal v-model="detailsVisible" :title="detailsModal.title">
-      <template slot="footer">
-        <a-button><a-icon type="heart" /><span> Favorite</span></a-button>
-        <a-button @click.stop="addAnimeFinished(item)">
-          <span style="display: flex; align-items: center;">
-            <a-icon
-              v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + detailsModal.mal_id) === false"
-              style="color: #008000; font-size: 16px;"
-              type="eye"
-            />
-            <a-icon
-              v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + detailsModal.mal_id) === true"
-              style="font-size: 16px;"
-              type="check"
-            />
-            <span class="desktop">
-              Watchlist
-            </span>
-          </span>
-          </a-button>
-        <a-button><a-icon type="check" /><span> Finished</span></a-button>
-      </template>
-      <p>Coucou</p>
-    </a-modal>
   </div>
 </template>
 
 <script>
+import Vue from "vue";
 import firebase from "firebase";
 import { message } from "ant-design-vue";
 const jikanjs = require("jikanjs");
+import countries from "@/json/countries.json"
 
 export default {
+  name: "Profile",
   data() {
     return {
       headers: {
         authorization: "authorization-text"
       },
 
+      countries: countries,
+
       isAdding: false,
 
       detailsVisible: false,
       detailsModal: {},
+      loading: true,
 
       edit: false,
 
+      otherVerified: "somewhere",
       imageData: null,
       picture: null,
       uploadValue: 0,
       previewURL: "",
       favCharName: this.$store.state.userList[this.$route.params.id].favChar.name,
-      favCharImg: this.favCharImg = this.$store.state.userList[this.$route.params.id].favChar.photoUrl
+      favCharImg: this.$store.state.userList[this.$route.params.id].favChar.photoUrl
     };
   },
   head: {
@@ -389,20 +498,72 @@ export default {
     this.bform = this.$form.createForm(this, { name: "edit" });
   },
   computed: {
-    // filteredItems() {
-    //   return this.$store.state.userdb.watchedAnimes.filter(anime => {
-    //     anime.episodes == anime.watched
-    //   });
-    // } 
+    orderedCountries: function () {
+      return Vue._.orderBy(this.countries)
+    },
+    orderedWatchedAnimes: function () {
+      return Vue._.orderBy(this.$store.state.userList[this.$route.params.id].watchedAnimes, 'name')
+    }
   },
   methods: {
     // See anime details modal
     showDetails(value) {
+      this.loading = true
       this.detailsVisible = true
       jikanjs.loadAnime(value).then(response => {
-        console.log(response)
         this.detailsModal = response
+        this.loading = false
       });
+    },
+    // Increase and decline watched episodes value
+    changeWatched(value) {
+      console.log(this.detailsModal.episodes)
+      if (this.detailsModal.episodes && value !== (undefined || '') && value <= this.detailsModal.episodes ) {
+        firebase
+          .database()
+          .ref("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + this.detailsModal.mal_id)
+          .update({
+            watched: value
+          })
+      } else if (!this.detailsModal.episodes) {
+        firebase
+        .database()
+        .ref("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + this.detailsModal.mal_id)
+        .update({
+          watched: value
+        })
+      } else {
+        console.log('Oops')
+      }
+    },
+    increase(value) {
+      if (this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched !== value.episodes) {
+        firebase
+          .database()
+          .ref("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + value.mal_id)
+          .update({
+            watched: this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched + 1
+          })
+      } else {
+        console.log('Oops')
+      }
+      let percent = this.percent + 100 / value;
+      if (percent > 100) {
+        percent = 100;
+      }
+      this.percent = percent;
+    },
+    decline(value) {
+      if (this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched !== 0) {
+        firebase
+          .database()
+          .ref("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + value.mal_id)
+          .update({
+            watched: this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched - 1
+          })
+      } else {
+        console.log('Oops')
+      }
     },
     // Remove Favorite character
     removeCharacter() {
@@ -428,25 +589,9 @@ export default {
           .database()
           .ref("users/" + user.uid + "/watchedAnimes/" + 'anime' + response.mal_id)
           .update({
-            name: response.title,
-            type: response.type,
-            source: response.source,
-            episodes: response.episodes,
-            status: response.status,
             airing: response.airing,
-            aired: response.aired,
-            duration: response.duration,
-            rating: response.rating,
-            score: response.score,
-            synopsis: response.synopsis,
-            premiered: response.premiered,
-            broadcast: response.broadcast,
-            related: response.related,
-            producers: response.producers,
-            studios: response.studios,
-            genres: response.genres,
-            openings: response.opening_themes,
-            endings: response.ending_themes,
+            name: response.title,
+            episodes: response.episodes,
             photoUrl: response.image_url,
             mal_id: response.mal_id,
             watched: 0
@@ -463,7 +608,60 @@ export default {
           .ref().child("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + value.mal_id)
           .remove()
           .then(function(){
-            message.success("You just removed " + value.name + " of your watchlist.");
+            message.success("You just removed " + (value.name || value.title) + " of your watchlist.");
+          });
+        this.isAdding = false
+      }
+    },
+    // Adding an anime as finished
+    addAnimeFinished(value) {
+      if (Object.keys(this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes).includes('anime' + value.mal_id) === false) {
+        this.isAdding = true
+        jikanjs.loadAnime(value.mal_id).then(response => {
+          let user = firebase.auth().currentUser;
+          var title = response.title
+          firebase
+          .database()
+          .ref("users/" + user.uid + "/watchedAnimes/" + 'anime' + response.mal_id)
+          .update({
+            airing: response.airing,
+            name: response.title,
+            episodes: response.episodes,
+            photoUrl: response.image_url,
+            mal_id: response.mal_id,
+            watched: response.episodes
+          })
+          .then(function(){
+            message.success("You just added " + title + " to your finished animes.");
+          });
+          this.isAdding = false
+        });
+      } else if (Object.keys(this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes).includes('anime' + value.mal_id) === true && this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched !== value.episodes) {
+        this.isAdding = true
+        jikanjs.loadAnime(value.mal_id).then(response => {
+          let user = firebase.auth().currentUser;
+          var title = response.title
+          firebase
+          .database()
+          .ref("users/" + user.uid + "/watchedAnimes/" + 'anime' + response.mal_id)
+          .update({
+            watched: response.episodes
+          })
+          .then(function(){
+            message.success("You just added " + title + " to your finished animes.");
+          });
+          this.isAdding = false
+        });
+      } else {
+        this.isAdding = true
+        firebase
+          .database()
+          .ref("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + value.mal_id)
+          .update({
+            watched: 0
+          })
+          .then(function(){
+            message.success("You just removed " + value.title + " of your finished animes .");
           });
         this.isAdding = false
       }
@@ -560,6 +758,8 @@ export default {
       let user = firebase.auth().currentUser;
       let username = this.bform.getFieldValue("nickname");
       let bio = this.bform.getFieldValue("bio");
+      let country = this.bform.getFieldValue("country");
+      let other = this.bform.getFieldValue("other");
       if (this.imageData !== null) {
         const storageRef = firebase
           .storage()
@@ -590,7 +790,11 @@ export default {
                     .update({
                       displayName: username,
                       photoURL: url,
-                      bio: bio
+                      bio: bio,
+                      location: {
+                        country: country,
+                        other: other
+                      }
                     });
                   // Update successful.
                   window.location.reload(false);
@@ -609,7 +813,11 @@ export default {
               .ref("users/" + user.uid)
               .update({
                 displayName: username,
-                bio: bio
+                bio: bio,
+                location: {
+                  country: country,
+                  other: other
+                }
               });
             // Update successful.
             window.location.reload(false);
@@ -618,7 +826,6 @@ export default {
     }
   },
   mounted() {
-    console.log(this.$store.state.userdb.uid)
   }
 };
 </script>
@@ -663,7 +870,10 @@ img.preview {
     }
     &_informations {
       width: 100%;
-      margin-left: 25px;
+      margin-left: 0;
+      @media (min-width: 768px) {
+        margin-left: 25px;
+      }
     }
   }
 }

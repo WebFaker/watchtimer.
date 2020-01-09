@@ -5,7 +5,7 @@
     </div>
     <h1 style="margin-top: 50px; text-align: center;">Search for an anime :</h1>
     <a-input-group style="text-align: center;" compact>
-      <a-select style="width: 115px;" defaultValue="anime" @change="handleChange">
+      <a-select style="width: 130px;" defaultValue="anime" @change="handleChange">
         <a-select-option value="anime">Anime</a-select-option>
         <a-select-option value="character">Characters</a-select-option>
       </a-select>
@@ -24,9 +24,24 @@
         <div v-if="show" main-card_noMargin style="display: flex; flex-wrap: wrap; justify-content: center;">
           <a-list style="width: 100%;" itemLayout="vertical" :dataSource="animeResults">
             <div slot="footer"><b>You didn't found what you want ?</b> Try to be more accurate ! <a-icon type="smile" /></div>
-            <a-list-item slot="renderItem" slot-scope="item">
-              <template v-if="isLogged === 'true'" slot="actions">
-                <span>
+            <a-list-item @click="showModal(item.mal_id)" slot="renderItem" slot-scope="item" style="cursor: pointer">
+              <template v-if="isLogged === 'true' && searchType == 'character'" slot="actions">
+                <span @click.stop="toggleFav(item.mal_id)" v-if="searchType == 'character'">
+                  <a-icon v-if="$store.state.userList[$store.state.userdb.uid].favChar.mal_id == item.mal_id && isAdding == false" style="color: #ff0000;" twoToneColor="FF0000" type="heart" theme="filled" />
+                  <a-spin
+                    style="height: 18px;"
+                    v-if="isAdding == true"
+                  >
+                    <a-icon slot="indicator" type="loading" style="color: #ff0000; font-size: 12px;" spin />
+                  </a-spin>
+                  <a-icon v-if="$store.state.userList[$store.state.userdb.uid].favChar.mal_id !== item.mal_id && isAdding == false" style="color: #ff0000;" twoToneColor="FF0000" type="heart" theme="twoTone" />
+                  <span class="desktop">
+                    Favorite
+                  </span>
+                </span>
+              </template>
+              <template v-if="isLogged === 'true' && searchType == 'anime'" slot="actions">
+                <span v-if="searchType == 'anime'">
                   <a-icon type="heart"/>
                   <span class="desktop">
                     Favorite
@@ -77,17 +92,17 @@
                 </span>
               </template>
               <img
-                @click="showModal(item.mal_id)"
                 slot="extra"
                 class="main-card_img"
                 :alt="item.title"
                 :src="item.image_url"
               />
               <a-list-item-meta>
-                <a @click="showModal(item.mal_id)" slot="title" href="#">{{item.title}} <a-tag class="button-div_tags_item">{{ item.rated }}</a-tag></a>
-                <p slot="description">{{ item.episodes || '?' }} episode<span v-if="item.episodes !== 1">s</span> to watch</p>
+                <p v-if="searchType == 'anime'" class="ant-list-item-meta-title" slot="title">{{ item.title }} <a-tag class="button-div_tags_item">{{ item.rated }}</a-tag></p>
+                <p v-else class="ant-list-item-meta-title" slot="title">{{ item.name }}</p>
+                <p v-if="searchType == 'anime'" slot="description">{{ item.episodes || '?' }} episode<span v-if="item.episodes !== 1">s</span> to watch</p>
               </a-list-item-meta>
-              {{item.synopsis}}
+              {{ item.synopsis }}
             </a-list-item>
           </a-list>
           <!-- <a-card
@@ -102,29 +117,29 @@
               <a-icon
                 v-if="isLogged === 'true' && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + i.mal_id) === false && isAdding == false"
                 @click.stop="addAnime(i)"
-                style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;"
+                style="color: red; position: absolute; top: 5px; right: 5px; font-size: 20px;"
                 twoToneColor="FF0000"
                 type="heart"
                 theme="twoTone"
               />
               <a-spin
                 v-if="isLogged === 'true' && isAdding == true"
-                style="position: absolute; top: 10px; right: 10px;"
+                style="position: absolute; top: 5px; right: 5px;"
               >
                 <a-icon slot="indicator" type="loading" style="font-size: 24px; color: #ffd500; font-size: 20px;" spin />
               </a-spin>
               <a-icon
                 v-if="isLogged === 'true' && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + i.mal_id) === true && isAdding == false"
                 @click.stop="addAnime(i)"
-                style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;"
+                style="color: red; position: absolute; top: 5px; right: 5px; font-size: 20px;"
                 twoToneColor="FF0000"
                 type="heart"
                 theme="filled"
               />
             </div>
             <div v-if="searchType == 'character'">
-              <a-icon v-if="isLogged === 'true' && $store.state.userList[$store.state.userdb.uid].favChar.mal_id == i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="filled" />
-              <a-icon v-if="isLogged === 'true' && $store.state.userList[$store.state.userdb.uid].favChar.mal_id !== i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="twoTone" />
+              <a-icon v-if="isLogged === 'true' && $store.state.userList[$store.state.userdb.uid].favChar.mal_id == i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 5px; right: 5px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="filled" />
+              <a-icon v-if="isLogged === 'true' && $store.state.userList[$store.state.userdb.uid].favChar.mal_id !== i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 5px; right: 5px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="twoTone" />
             </div>
             <img
               class="anime-card_img"
@@ -153,12 +168,14 @@
               <div>
                 <a-tag v-for="(genre, g) in modal.genres" :key="g">{{ genre.name }}</a-tag>
               </div>
-              <router-link class="desktop" :to="`/anime/` + modal.id" target="_blank">
-                <a-button style="margin-top: 10px;" size="small"><a-icon type="question-circle" /> More details</a-button>
-              </router-link>
-              <router-link class="mobile" :to="`/anime/` + modal.id">
-                <a-button style="margin-top: 10px;" size="small"><a-icon type="question-circle" /> More details</a-button>
-              </router-link>
+              <div v-if="searchType == 'anime'">
+                <router-link class="desktop" :to="`/anime/` + modal.id" target="_blank">
+                  <a-button style="margin-top: 5px;" size="small"><a-icon type="question-circle" /> More details</a-button>
+                </router-link>
+                <router-link class="mobile" :to="`/anime/` + modal.id">
+                  <a-button style="margin-top: 5px;" size="small"><a-icon type="question-circle" /> More details</a-button>
+                </router-link>
+              </div>
             </div>
           </div>
           <div class="modal_informations">
@@ -208,21 +225,21 @@
           <a-icon
             v-if="isLogged === 'true' && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + top.mal_id) === false && isAdding == false"
             @click.stop="addAnime(top)"
-            style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;"
+            style="color: red; position: absolute; top: 5px; right: 5px; font-size: 20px;"
             twoToneColor="FF0000"
             type="heart"
             theme="twoTone"
           />
           <a-spin
             v-if="isLogged === 'true' && isAdding == true"
-            style="position: absolute; top: 10px; right: 10px;"
+            style="position: absolute; top: 5px; right: 5px;"
           >
             <a-icon slot="indicator" type="loading" style="font-size: 24px; color: #ffd500; font-size: 20px;" spin />
           </a-spin>
           <a-icon
             v-if="isLogged === 'true' && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + top.mal_id) === true && isAdding == false"
             @click.stop="addAnime(top)"
-            style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;"
+            style="color: red; position: absolute; top: 5px; right: 5px; font-size: 20px;"
             twoToneColor="FF0000"
             type="heart"
             theme="filled"
@@ -337,25 +354,9 @@ export default {
           .database()
           .ref("users/" + user.uid + "/watchedAnimes/" + 'anime' + response.mal_id)
           .update({
-            name: response.title,
-            type: response.type,
-            source: response.source,
-            episodes: response.episodes,
-            status: response.status,
             airing: response.airing,
-            aired: response.aired,
-            duration: response.duration,
-            rating: response.rating,
-            score: response.score,
-            synopsis: response.synopsis,
-            premiered: response.premiered,
-            broadcast: response.broadcast,
-            related: response.related,
-            producers: response.producers,
-            studios: response.studios,
-            genres: response.genres,
-            openings: response.opening_themes,
-            endings: response.ending_themes,
+            name: response.title,
+            episodes: response.episodes,
             photoUrl: response.image_url,
             mal_id: response.mal_id,
             watched: 0
@@ -387,25 +388,9 @@ export default {
           .database()
           .ref("users/" + user.uid + "/watchedAnimes/" + 'anime' + response.mal_id)
           .update({
-            name: response.title,
-            type: response.type,
-            source: response.source,
-            episodes: response.episodes,
-            status: response.status,
             airing: response.airing,
-            aired: response.aired,
-            duration: response.duration,
-            rating: response.rating,
-            score: response.score,
-            synopsis: response.synopsis,
-            premiered: response.premiered,
-            broadcast: response.broadcast,
-            related: response.related,
-            producers: response.producers,
-            studios: response.studios,
-            genres: response.genres,
-            openings: response.opening_themes,
-            endings: response.ending_themes,
+            name: response.title,
+            episodes: response.episodes,
             photoUrl: response.image_url,
             mal_id: response.mal_id,
             watched: response.episodes
@@ -536,6 +521,8 @@ export default {
     },
     handleChange(value) {
       this.searchType = value;
+      this.show = false;
+      this.isShowingTop = true;
     },
     onSearch(value) {
       (this.animeResults = ""),

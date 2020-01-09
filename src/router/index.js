@@ -5,7 +5,7 @@ import Anime from "@/views/Anime.vue";
 import Login from "@/views/Login.vue";
 import Profile from "@/views/Profile.vue";
 import Follows from "@/views/Follows.vue";
-import Friends from "@/views/Friends.vue";
+import Users from "@/views/Users.vue";
 import Settings from "@/views/Settings.vue";
 import notFound from "@/views/NotFound.vue"
 
@@ -51,9 +51,9 @@ const routes = [
     component: Follows
   },
   {
-    path: "/friends",
-    name: "friends",
-    component: Friends
+    path: "/users",
+    name: "users",
+    component: Users
   },
   {
     path: "/settings",

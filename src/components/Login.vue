@@ -315,7 +315,10 @@ export default {
                 bio: "I'm new here, I hope we'll be friends !",
                 createdAt: creationTime,
                 lastSigned: lastSigned,
-                location: 'somewhere',
+                location: {
+                  country: 'Somewhere',
+                  other: ''
+                },
                 flag: "active",
                 favChar: {
                   name: "nobody",
