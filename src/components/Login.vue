@@ -315,7 +315,13 @@ export default {
                 bio: "I'm new here, I hope we'll be friends !",
                 createdAt: creationTime,
                 lastSigned: lastSigned,
+                location: 'somewhere',
                 flag: "active",
+                favChar: {
+                  name: "nobody",
+                  photoUrl: "https://firebasestorage.googleapis.com/v0/b/watch-timer.appspot.com/o/18436.png?alt=media&token=68807595-a777-4c67-a16f-a49d043c2547",
+                  mal_id: "00000"
+                },
                 friends: {
                   following: {
                     [userID]: userID

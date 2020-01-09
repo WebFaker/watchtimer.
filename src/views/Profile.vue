@@ -16,7 +16,7 @@
         <a @click="$router.go(-1)" v-if="$store.state.userdb.uid !== $route.params.id" style="width: 100%; padding: 0 30px 50px;">
           <a-icon type="left" /> Back
         </a>
-        <a-card style="position: relative; width: 75%; min-width: 320px;">
+        <a-card class="main-card">
           <div v-if="$store.state.userdb.uid === $route.params.id">
             <a-button
               v-if="!edit"
@@ -108,7 +108,7 @@
                   src="@/assets/checked.svg"
                   alt="User Approved"
                 />
-                <span v-if="$store.state.userdb.uid !== $route.params.id" style="font-size: 12px;">(last logged {{ moment($store.state.userList[$route.params.id].createdAt).fromNow() }})</span>
+                <span v-if="$store.state.userdb.uid !== $route.params.id" style="font-size: 12px;">(last logged {{ moment($store.state.userList[$route.params.id].lastSigned).fromNow() }})</span>
               </div>
               <div v-if="!edit" style="display: flex; height: 100%; flex-direction: column; justify-content: space-between;">
                 <div>
@@ -185,32 +185,59 @@
             </div>
           </div>
         </a-card>
-        <a-card style="margin-top: 50px; position: relative; width: 75%; min-width: 320px;">
+        <a-card class="main-card" style="margin-top: 50px;">
           <h2><span v-if="$route.params.id === $store.state.userdb.uid">My animes</span><span v-else>{{ $store.state.userList[$route.params.id].displayName }}'s animes</span> ({{ Object.keys(this.$store.state.userList[this.$route.params.id].watchedAnimes).length - 1 }})</h2>
-          <div style="display: flex; flex-wrap: wrap;">
+          <div class="main-card_noMargin" style="display: flex; flex-wrap: wrap;">
             <div style="width: 100%;" v-if="Object.keys(this.$store.state.userList[this.$route.params.id].watchedAnimes).length == 1">
               <p>Oops, <span v-if="$route.params.id === $store.state.userdb.uid">you have</span><span v-else><span style="font-weight: bold">{{ $store.state.userList[$route.params.id].displayName }}</span> has</span> not added any animes yet.</p>
-              <a-button @click="$router.push('/')" style="margin-bottom: 1em" type="primary">Go add some !</a-button>
+              <a-button v-if="$route.params.id === $store.state.userdb.uid" @click="$router.push('/')" style="margin-bottom: 1em" type="primary">Go add some !</a-button>
               <img style="width: 100%;" src="https://media1.tenor.com/images/1f3e64eb5c24881b3d1b0c8cd54e4555/tenor.gif?itemid=11860845" alt="">
             </div>
-            <div v-else v-for="(anime, f) in $store.state.userList[$route.params.id].watchedAnimes" :key="f">
+            <div class="anime-card_outside" v-else v-for="(anime, f) in $store.state.userList[$route.params.id].watchedAnimes" :key="f">
               <a-card
+                @click="showDetails(anime.uid)"
+                class="anime-card"
                 v-if="anime !== 1"
                 hoverable
-                style="margin: 10px; width: 240px; position: relative"
+                style="position: relative"
               >
-                <a-icon v-if="Object.keys($store.state.userList[$route.params.id].watchedAnimes).includes('anime' + anime.mal_id) === false" @click.stop="addAnime(anime)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="twoTone" />
-                <a-icon v-if="Object.keys($store.state.userList[$route.params.id].watchedAnimes).includes('anime' + anime.mal_id) === true" @click.stop="addAnime(anime)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="filled" />
+                <a-button @click.stop="addAnime(anime)" size="small" style="position: absolute; top: 10px; right: 10px;">
+                <a-icon
+                  v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + anime.mal_id) === false && isAdding == false"
+                  style="color: #ffd500; font-size: 20px;"
+                  twoToneColor="ffd500"
+                  type="eye"
+                />
+                <a-spin
+                  v-if="isAdding == true"
+                >
+                  <a-icon
+                    slot="indicator"
+                    type="loading"
+                    style="color: #ffd500; font-size: 16px;"
+                    spin
+                  />
+                </a-spin>
+                <a-icon
+                  v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + anime.mal_id) === true && isAdding == false"
+                  style="color: #ffd500; font-size: 20px;"
+                  twoToneColor="ffd500"
+                  type="eye"
+                  theme="filled"
+                />
+                </a-button>
+                <div style="width: 100%; position: absolute; bottom: 0px;">
+                  <a-tag style="margin: 0 5px;">
+                    {{ $store.state.userList[$route.params.id].watchedAnimes['anime' + anime.mal_id].watched }} / {{ anime.episodes || '?' }}
+                  </a-tag>
+                  <a-progress v-if="anime.airing == false" style="width: 100%;" :percent="($store.state.userList[$route.params.id].watchedAnimes['anime' + anime.mal_id].watched / anime.episodes) * 100" :format="() => ''" />
+                </div>
                 <img
-                  style="height: 370px; object-fit: contain; object-position: 50% 0%"
+                  class="anime-card_img"
                   :src="anime.photoUrl"
                   :alt="anime.name"
                   slot="cover"
                 />
-                <a-card-meta :title="anime.name">
-                  <template slot="description">
-                  </template>
-                </a-card-meta>
               </a-card>
             </div>
           </div>
@@ -218,7 +245,7 @@
       </div>
     </div>
     <div v-else style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
-      <a-card style="position: relative; width: 75%; min-width: 320px;">
+      <a-card class="main-card">
         <h2>{{ $store.state.userList[$route.params.id].displayName }}'s profile</h2>
         <div class="profile_main">
           <div class="profile_main_img-container">
@@ -272,6 +299,30 @@
         <img style="width: 100%;" src="https://media.giphy.com/media/zOsBDA2n43HPO/giphy.gif" alt="">
       </a-card>
     </div>
+    <a-modal v-model="detailsVisible" :title="detailsModal.title">
+      <template slot="footer">
+        <a-button><a-icon type="heart" /><span> Favorite</span></a-button>
+        <a-button @click.stop="addAnimeFinished(item)">
+          <span style="display: flex; align-items: center;">
+            <a-icon
+              v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + detailsModal.mal_id) === false"
+              style="color: #008000; font-size: 16px;"
+              type="eye"
+            />
+            <a-icon
+              v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + detailsModal.mal_id) === true"
+              style="font-size: 16px;"
+              type="check"
+            />
+            <span class="desktop">
+              Watchlist
+            </span>
+          </span>
+          </a-button>
+        <a-button><a-icon type="check" /><span> Finished</span></a-button>
+      </template>
+      <p>Coucou</p>
+    </a-modal>
   </div>
 </template>
 
@@ -287,6 +338,11 @@ export default {
         authorization: "authorization-text"
       },
 
+      isAdding: false,
+
+      detailsVisible: false,
+      detailsModal: {},
+
       edit: false,
 
       imageData: null,
@@ -297,11 +353,57 @@ export default {
       favCharImg: this.favCharImg = this.$store.state.userList[this.$route.params.id].favChar.photoUrl
     };
   },
+  head: {
+    title: function () {
+      return {
+        inner: 'Watchtimer. | ' + this.$store.state.userList[this.$route.params.id].displayName + `'s profile`
+      }
+    },
+    // Meta tags
+    meta: function () {
+      return [
+        { name: 'application-name', content: `Watchtimer. | Profile page` },
+        { name: 'description', content: `See this user's profile page on Watchtimer.`, id: 'desc' }, // id to replace intead of create element
+        // ...
+        // Twitter
+        { name: 'twitter:title', content: `Watchtimer. | Profile page` },
+        // with shorthand
+        { n: 'twitter:description', c: `See this user's profile page on Watchtimer.`},
+        // ...
+        // Google+ / Schema.org
+        { itemprop: 'name', content: `Watchtimer. | Profile page` },
+        { itemprop: 'description', content: `See this user's profile page on Watchtimer.` },
+        // ...
+        // Facebook / Open Graph
+        { property: 'fb:app_id', content: '123456789' },
+        { property: 'og:url', content: 'https://watch-timer.web.app' },
+        { property: 'og:title', content: `Watchtimer. | Profile page` },
+        // with shorthand
+        { p: 'og:image', c: `https://firebasestorage.googleapis.com/v0/b/watch-timer.appspot.com/o/Splash.jpg?alt=media&token=3110bf05-5eb3-45b1-aca3-0a8d25389d8e` },
+        // ...
+      ]
+    },
+  },
   beforeCreate() {
     this.imageData = null;
     this.bform = this.$form.createForm(this, { name: "edit" });
   },
+  computed: {
+    // filteredItems() {
+    //   return this.$store.state.userdb.watchedAnimes.filter(anime => {
+    //     anime.episodes == anime.watched
+    //   });
+    // } 
+  },
   methods: {
+    // See anime details modal
+    showDetails(value) {
+      this.detailsVisible = true
+      jikanjs.loadAnime(value).then(response => {
+        console.log(response)
+        this.detailsModal = response
+      });
+    },
     // Remove Favorite character
     removeCharacter() {
       let user = firebase.auth().currentUser;
@@ -317,8 +419,8 @@ export default {
     },
     // Add or Remove anime from list
     addAnime(value) {
-      console.log(value)
       if (Object.keys(this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes).includes('anime' + value.mal_id) === false) {
+        this.isAdding = true
         jikanjs.loadAnime(value.mal_id).then(response => {
           let user = firebase.auth().currentUser;
           var title = response.title
@@ -327,18 +429,43 @@ export default {
           .ref("users/" + user.uid + "/watchedAnimes/" + 'anime' + response.mal_id)
           .update({
             name: response.title,
+            type: response.type,
+            source: response.source,
+            episodes: response.episodes,
+            status: response.status,
+            airing: response.airing,
+            aired: response.aired,
+            duration: response.duration,
+            rating: response.rating,
+            score: response.score,
+            synopsis: response.synopsis,
+            premiered: response.premiered,
+            broadcast: response.broadcast,
+            related: response.related,
+            producers: response.producers,
+            studios: response.studios,
+            genres: response.genres,
+            openings: response.opening_themes,
+            endings: response.ending_themes,
             photoUrl: response.image_url,
             mal_id: response.mal_id,
             watched: 0
+          })
+          .then(function(){
+            message.success("You just added " + title + " to your watchlist.");
           });
-          message.success("You just added " + title + " to your watchlist.");
+          this.isAdding = false
         });
       } else {
+        this.isAdding = true
         firebase
           .database()
           .ref().child("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + value.mal_id)
           .remove()
-          message.success("You just removed " + value.title + " of your watchlist.");
+          .then(function(){
+            message.success("You just removed " + value.name + " of your watchlist.");
+          });
+        this.isAdding = false
       }
     },
     // Follow / Unfollow System
@@ -495,6 +622,17 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.ant-progress-show-info .ant-progress-outer {
+  padding: 0 5px;
+  margin: 0;
+}
+
+.ant-progress-text {
+  display: none;
+}
+</style>
 
 <style lang="scss" scoped>
 img.preview {

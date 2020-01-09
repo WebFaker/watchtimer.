@@ -47,12 +47,9 @@
       </a-drawer>
     </div>
     <!-- !Burger Menu -->
-    <div v-if="fullLoad && firstTime !== 'yes'" class="fullLoad">
-      <img class="loader fullLoad_img" src="@/assets/eye.png" alt="">
-    </div>
     <div id="nav">
       <router-link style="color: #000 !important;" to="/">
-        <img style="margin-right: 10px; width: 20px" src="@/assets/eye.png" alt="Logo"><span style="font-weight: lighter;">Watchtimer.</span>
+        <img style="margin-right: 10px; width: 20px" src="@/assets/eye.png" alt="Logo"><span style="font-weight: lighter;">Watchtimer.</span><a-tag style="margin-left: 5px;">v0.1</a-tag>
       </router-link>
       <div style="display: flex; align-items: center;">
         <p style="margin: 0;" class="mobile" type="primary" @click="showDrawer">
@@ -93,8 +90,6 @@ export default {
       visible: false,
 
       isLogged: localStorage.isLogged,
-      fullLoad: true,
-      firstTime: sessionStorage.firstTime
     }
   },
   beforeCreate() {
@@ -108,10 +103,7 @@ export default {
     this.$store.registerModule('user', { preserveState: true })
     this.$store.dispatch('updateProfile')
     this.$store.dispatch('updateUserList')
-    setTimeout(() => {
-      this.fullLoad = false
-      sessionStorage.firstTime = "yes"
-    }, 4000)
+    this.fullLoad = true
   },
   methods: {
     signOut() {
@@ -119,7 +111,6 @@ export default {
       .then(function() {
         // Sign-out successful.
         localStorage.isLogged = false
-        localStorage.removeItem('token159910gichesnihich');
         window.location.href = '/'
       })
       .catch(function(error) {
@@ -144,23 +135,107 @@ export default {
 .ant-message {
   z-index: 9999 !important;
 }
-</style>
-
-<style lang="scss" scoped>
 .desktop {
   display: none !important;
   @media(min-width: 768px) {
     display: block !important;
   }
 }
-
 .mobile {
   display: block !important;
   @media(min-width: 768px) {
     display: none !important;
   }
 }
+.main-card {
+  position: relative;
+  width: 100%;
+  min-width: 320px;
+  &_noMargin {
+    margin: 0 -5px;
+      @media(min-width: 768px) {
+      width: auto;
+      margin: 0 -10px;
+    }
+  }
+  &_img {
+    width: 50px;
+    @media(min-width: 768px) {
+      width: 75px;
+    }
+    @media(min-width: 1024px) {
+      width: 100px;
+    }
+    @media(min-width: 1440px) {
+      width: 125px;
+    }
+  }
+  @media(min-width: 768px) {
+    width: 85%;
+  }
+  @media(min-width: 1024px) {
+    width: 75%;
+  }
+}
+.anime-card_outside > .anime-card {
+  width: 100%;
+  padding: 0;
+}
+.anime-card > .ant-card-body {
+  padding: 0;
+}
+.anime-card {
+  width: 50%;
+  margin: 5px;
+  @media(min-width: 768px) {
+    width: 25%;
+    margin: 10px;
+  }
+  @media(min-width: 1024px) {
+    width: 20%;
+  }
+  @media(min-width: 1440px) {
+    width: 16.66%;
+  }
+  &_outside {
+    width: 50%;
+    padding: 5px;
+    @media(min-width: 468px) {
+      width: 33.33%;
+      padding: 5px;
+    }
+    @media(min-width: 768px) {
+      width: 25%;
+      padding: 10px;
+    }
+    @media(min-width: 1024px) {
+      width: 20%;
+    }
+    @media(min-width: 1440px) {
+      width: 16.66%;
+    }
+  }
+  &_img {
+    object-fit: cover;
+    object-position: 50% 100%;
+    height: 60vw;
+    @media(min-width: 468px) {
+      height: 40vw;
+    }
+    @media(min-width: 768px) {
+      height: 27vw;
+    }
+    @media(min-width: 1024px) {
+      height: 20vw;
+    }
+    @media(min-width: 1440px) {
+      height: 15vw;
+    }
+  }
+}
+</style>
 
+<style lang="scss" scoped>
 .loader {
   -webkit-animation: scale-up-center 0.4s cubic-bezier(0.39, 0.575, 0.565, 1)
     infinite alternate;
@@ -213,21 +288,6 @@ export default {
       color: #ffd500;
       text-decoration: none;
     }
-  }
-}
-
-.fullLoad {
-  position: fixed;
-  z-index: 999;
-  background: white;
-  width: 100vw;
-  height: 100vh;
-  &_img {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 50px;
   }
 }
 </style>

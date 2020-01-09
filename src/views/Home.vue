@@ -1,5 +1,8 @@
 <template>
   <div class="home">
+    <div v-if="fullLoad" class="fullLoad">
+      <img class="loader fullLoad_img" src="@/assets/eye.png" alt="">
+    </div>
     <h1 style="margin-top: 50px; text-align: center;">Search for an anime :</h1>
     <a-input-group style="text-align: center;" compact>
       <a-select style="width: 115px;" defaultValue="anime" @change="handleChange">
@@ -15,17 +18,85 @@
       src="@/assets/eye.png"
       alt="Watchtimer Logo"
     />
-    <transition name="fade">
-      <div style="margin-top: 50px;" v-if="show">
-        <h2 style="text-align: center;">Results for : {{ searchValue }}</h2>
-        <div v-if="show" style="display: flex; flex-wrap: wrap; justify-content: center;">
-          <a-card
+    <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+      <a-card class="main-card" style="margin-top: 50px;" v-if="show">
+        <h2 style="text-align: center;">Results for : <span style="font-weight: bolder;">{{ searchValue }}</span></h2>
+        <div v-if="show" main-card_noMargin style="display: flex; flex-wrap: wrap; justify-content: center;">
+          <a-list style="width: 100%;" itemLayout="vertical" :dataSource="animeResults">
+            <div slot="footer"><b>You didn't found what you want ?</b> Try to be more accurate ! <a-icon type="smile" /></div>
+            <a-list-item slot="renderItem" slot-scope="item">
+              <template v-if="isLogged === 'true'" slot="actions">
+                <span>
+                  <a-icon type="heart"/>
+                  <span class="desktop">
+                    Favorite
+                  </span>
+                </span>
+                <span @click.stop="addAnime(item)">
+                  <a-icon
+                    v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + item.mal_id) === false && isAdding == false"
+                    @click.stop="addAnime(item)"
+                    style="color: #ffd500; font-size: 16px;"
+                    twoToneColor="ffd500"
+                    type="eye"
+                    theme="twoTone"
+                  />
+                  <a-spin
+                    style="height: 18px;"
+                    v-if="isAdding == true"
+                  >
+                    <a-icon slot="indicator" type="loading" style="color: #ffd500; font-size: 12px;" spin />
+                  </a-spin>
+                  <a-icon
+                    v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + item.mal_id) === true && isAdding == false"
+                    style="color: #ffd500; font-size: 16px;"
+                    twoToneColor="ffd500"
+                    type="eye"
+                    theme="filled"
+                  />
+                  <span class="desktop">
+                    Watchlist
+                  </span>
+                </span>
+                <span v-if="item.airing == false">
+                  <a-icon
+                    v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + item.mal_id) === true && isAdding == false && $store.state.userList[$store.state.userdb.uid].watchedAnimes['anime' + item.mal_id].watched == item.episodes"
+                    @click.stop="addAnimeFinished(item)"
+                    style="color: #008000; font-size: 16px;"
+                    type="check"
+                  />
+                  <a-icon
+                    v-else
+                    @click.stop="addAnimeFinished(item)"
+                    style="font-size: 16px;"
+                    type="check"
+                  />
+                  <span class="desktop">
+                    Finished
+                  </span>
+                </span>
+              </template>
+              <img
+                @click="showModal(item.mal_id)"
+                slot="extra"
+                class="main-card_img"
+                :alt="item.title"
+                :src="item.image_url"
+              />
+              <a-list-item-meta>
+                <a @click="showModal(item.mal_id)" slot="title" href="#">{{item.title}} <a-tag class="button-div_tags_item">{{ item.rated }}</a-tag></a>
+                <p slot="description">{{ item.episodes || '?' }} episode<span v-if="item.episodes !== 1">s</span> to watch</p>
+              </a-list-item-meta>
+              {{item.synopsis}}
+            </a-list-item>
+          </a-list>
+          <!-- <a-card
             :value="i.mal_id"
             @click="showModal(i.mal_id)"
             v-for="(i, e) in animeResults"
             :key="e"
             hoverable
-            style="margin: 10px; width: 240px; position: relative;"
+            class="anime-card"
           >
             <div v-if="searchType == 'anime'">
               <a-icon
@@ -56,46 +127,38 @@
               <a-icon v-if="isLogged === 'true' && $store.state.userList[$store.state.userdb.uid].favChar.mal_id !== i.mal_id" @click.stop="toggleFav(i.mal_id)" style="color: red; position: absolute; top: 10px; right: 10px; font-size: 20px;" twoToneColor="FF0000" type="heart" theme="twoTone" />
             </div>
             <img
-              style="height: 370px; object-fit: contain; object-position: 50% 0%"
+              class="anime-card_img"
               :src="i.image_url"
               :alt="i.title"
               slot="cover"
             />
-            <a-card-meta :title="i.title">
-              <template slot="description">
-                <p v-if="searchType == 'anime'">
-                  En cours :
-                  <span v-if="i.airing">Oui</span>
-                  <span v-if="!i.airing">Non</span>
-                  <br />
-                  Score : {{ i.score }}/10
-                </p>
-                <p v-if="searchType == 'character'">{{ i.name }}</p>
-                <div v-if="searchType == 'character' && i.alternative_names.length !== 0">
-                  <span>Known as : </span>
-                  <span v-for="(name, g) in i.alternative_names" :key="g">{{ name }}</span>
-                </div>
-              </template>
-            </a-card-meta>
-          </a-card>
+          </a-card> -->
         </div>
-      </div>
-    </transition>
+      </a-card>
+    </div>
     <a-modal
       :footer="null"
       :afterClose="afterClose"
-      :title="this.modal.name + ' (' + this.modal.id + ')'"
+      :title="modal.name"
       v-model="visible"
       @ok="handleOk"
     >
       <a-skeleton active :loading="loading">
         <div class="modal_container">
           <div style="display: flex; align-items: center;">
-            <img style="max-width: 50%;" :src="this.modal.img" :alt="this.modal.name" />
+            <img style="max-width: 50%;" :src="modal.img" :alt="modal.name" />
             <div style="margin-left: 10px;" class="modal_titles">
               <h3>{{ modal.name }}</h3>
               <p style="color: grey; font-size: 12px;">{{ modal.japanese }}</p>
-              <a-tag v-for="(genre, g) in modal.genres" :key="g">{{ genre.name }}</a-tag>
+              <div>
+                <a-tag v-for="(genre, g) in modal.genres" :key="g">{{ genre.name }}</a-tag>
+              </div>
+              <router-link class="desktop" :to="`/anime/` + modal.id" target="_blank">
+                <a-button style="margin-top: 10px;" size="small"><a-icon type="question-circle" /> More details</a-button>
+              </router-link>
+              <router-link class="mobile" :to="`/anime/` + modal.id">
+                <a-button style="margin-top: 10px;" size="small"><a-icon type="question-circle" /> More details</a-button>
+              </router-link>
             </div>
           </div>
           <div class="modal_informations">
@@ -107,7 +170,7 @@
                 frameborder="0"
                 rel="0"
                 modestbranding="1"
-                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen
               />
             </div>
@@ -210,14 +273,15 @@ export default {
   name: "home",
   data() {
     return {
+      // Page Load
+      fullLoad: true,
+
       isLogged: localStorage.isLogged,
 
       isAdding: false,
 
       percent: 0,
       currentEpisode: 0,
-
-      fullLoad: true,
 
       loading: true,
       visible: false,
@@ -256,6 +320,7 @@ export default {
     (this.isLoading = false),
     jikanjs.loadTop("anime").then(response => {
       this.topResults = response.top;
+      this.fullLoad = false;
     });
   },
   mounted() {
@@ -308,6 +373,74 @@ export default {
           .remove()
           .then(function(){
             message.success("You just removed " + value.title + " of your watchlist.");
+          });
+        this.isAdding = false
+      }
+    },
+    addAnimeFinished(value) {
+      if (Object.keys(this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes).includes('anime' + value.mal_id) === false) {
+        this.isAdding = true
+        jikanjs.loadAnime(value.mal_id).then(response => {
+          let user = firebase.auth().currentUser;
+          var title = response.title
+          firebase
+          .database()
+          .ref("users/" + user.uid + "/watchedAnimes/" + 'anime' + response.mal_id)
+          .update({
+            name: response.title,
+            type: response.type,
+            source: response.source,
+            episodes: response.episodes,
+            status: response.status,
+            airing: response.airing,
+            aired: response.aired,
+            duration: response.duration,
+            rating: response.rating,
+            score: response.score,
+            synopsis: response.synopsis,
+            premiered: response.premiered,
+            broadcast: response.broadcast,
+            related: response.related,
+            producers: response.producers,
+            studios: response.studios,
+            genres: response.genres,
+            openings: response.opening_themes,
+            endings: response.ending_themes,
+            photoUrl: response.image_url,
+            mal_id: response.mal_id,
+            watched: response.episodes
+          })
+          .then(function(){
+            message.success("You just added " + title + " to your finished animes.");
+          });
+          this.isAdding = false
+        });
+      } else if (Object.keys(this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes).includes('anime' + value.mal_id) === true && this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched !== value.episodes) {
+        this.isAdding = true
+        jikanjs.loadAnime(value.mal_id).then(response => {
+          let user = firebase.auth().currentUser;
+          var title = response.title
+          firebase
+          .database()
+          .ref("users/" + user.uid + "/watchedAnimes/" + 'anime' + response.mal_id)
+          .update({
+            watched: response.episodes
+          })
+          .then(function(){
+            message.success("You just added " + title + " to your finished animes.");
+          });
+          this.isAdding = false
+        });
+      } else {
+        this.isAdding = true
+        firebase
+          .database()
+          .ref("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + value.mal_id)
+          .update({
+            watched: 0
+          })
+          .then(function(){
+            message.success("You just removed " + value.title + " of your finished animes .");
           });
         this.isAdding = false
       }
@@ -365,12 +498,10 @@ export default {
       this.percent = percent;
     },
     afterClose() {
-      this.loading = true;
+      this.modal.name = ""
     },
     showModal(value) {
-      setTimeout(() => {
-        this.loading = false;
-      }, 1500);
+      this.loading = true;
       this.visible = true;
       this.modal.id = value;
       if (this.searchType === "anime") {
@@ -382,6 +513,7 @@ export default {
           this.modal.synopsis = response.synopsis;
           this.modal.genres = response.genres;
           this.modal.embed = response.trailer_url;
+          this.loading = false;
         });
       }
       if (this.searchType === "character") {
@@ -394,6 +526,7 @@ export default {
           this.modal.genres = response.genres;
           this.modal.embed = response.trailer_url;
           this.modal.animeography = response.animeography;
+          this.loading = false;
         });
       }
     },
@@ -410,16 +543,14 @@ export default {
         (this.show = false),
         (this.isShowingTop = false),
         (this.isLoading = true),
-        setTimeout(() => {
-          (this.isLoading = false),
-            jikanjs.search(this.searchType, value).then(response => {
-              console.log(response); // eslint-disable-line
-              response.results.forEach(element => {
-                this.animeResults = response.results;
-              });
+          jikanjs.search(this.searchType, value).then(response => {
+            console.log(response); // eslint-disable-line
+            response.results.forEach(element => {
+              this.animeResults = response.results;
             });
-          this.show = true;
-        }, 4000);
+            this.show = true;
+            this.isLoading = false
+          });
     }
   },
 };
@@ -464,6 +595,22 @@ export default {
   100% {
     -webkit-transform: translate(-50%, -50%) scale(1);
     transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.fullLoad {
+  position: fixed;
+  top: 0;
+  z-index: 999;
+  background: white;
+  width: 100vw;
+  height: 100vh;
+  &_img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
   }
 }
 

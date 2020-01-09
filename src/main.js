@@ -6,6 +6,10 @@ import router from "./router";
 import store from "./store";
 import firebase from "firebase";
 import moment from "moment";
+import VueHead from 'vue-head';
+ 
+Vue.use(VueHead);
+
 
 Vue.config.productionTip = false;
 
