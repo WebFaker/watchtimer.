@@ -184,7 +184,7 @@
                   <a-tag class="button-div_tags_item">{{ item.rated }}</a-tag>
                 </p>
                 <p
-                  v-if="searchType == 'anime'"
+                  v-if="searchType == 'character'"
                   class="ant-list-item-meta-title"
                   slot="title"
                 >
@@ -197,8 +197,23 @@
                   >
                   to watch
                 </p>
+                <p
+                  v-if="
+                    searchType == 'character' &&
+                      item.alternative_names.length !== 0
+                  "
+                  slot="description"
+                >
+                  Also knowned as :
+                  <span v-for="name in item.alternative_names" :key="name">
+                    {{ name }},
+                  </span>
+                  ...
+                </p>
               </a-list-item-meta>
-              {{ item.synopsis || "There is no synopsis for this anime..." }}
+              <span v-if="searchType == 'anime'">
+                {{ item.synopsis || "There is no synopsis for this anime..." }}
+              </span>
             </a-list-item>
           </a-list>
           <!-- <a-card
