@@ -537,12 +537,12 @@ export default {
       }
     },
     increase(value) {
-      if (this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched !== value.episodes) {
+      if (this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched < value.episodes) {
         firebase
           .database()
           .ref("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + value.mal_id)
           .update({
-            watched: this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched + 1
+            watched: this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched++
           })
       } else {
         console.log('Oops')
@@ -559,7 +559,7 @@ export default {
           .database()
           .ref("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + value.mal_id)
           .update({
-            watched: this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched - 1
+            watched: this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched -= 1
           })
       } else {
         console.log('Oops')

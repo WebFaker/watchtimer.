@@ -73,7 +73,7 @@
                     Watchlist
                   </span>
                 </span>
-                <span v-if="item.airing == false">
+                <span v-if="item.episodes">
                   <a-icon
                     v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + item.mal_id) === true && isAdding == false && $store.state.userList[$store.state.userdb.uid].watchedAnimes['anime' + item.mal_id].watched == item.episodes"
                     @click.stop="addAnimeFinished(item)"
@@ -99,10 +99,10 @@
               />
               <a-list-item-meta>
                 <p v-if="searchType == 'anime'" class="ant-list-item-meta-title" slot="title">{{ item.title }} <a-tag class="button-div_tags_item">{{ item.rated }}</a-tag></p>
-                <p v-else class="ant-list-item-meta-title" slot="title">{{ item.name }}</p>
+                <p v-if="searchType == 'anime'" class="ant-list-item-meta-title" slot="title">{{ item.name }}</p>
                 <p v-if="searchType == 'anime'" slot="description">{{ item.episodes || '?' }} episode<span v-if="item.episodes !== 1">s</span> to watch</p>
               </a-list-item-meta>
-              {{ item.synopsis }}
+              {{ item.synopsis || 'There is no synopsis for this anime...' }}
             </a-list-item>
           </a-list>
           <!-- <a-card
