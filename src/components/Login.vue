@@ -208,8 +208,7 @@ import { message } from "ant-design-vue";
 
 export default {
   name: "Login",
-  components: {
-  },
+  components: {},
   data() {
     return {
       userLogged: false,
@@ -280,8 +279,8 @@ export default {
             .database()
             .ref("users/" + userID)
             .update({
-              lastSigned: lastSigned,
-            })
+              lastSigned: lastSigned
+            });
           window.location.href = "../";
         })
         .catch(function(error) {
@@ -297,11 +296,13 @@ export default {
         .createUserWithEmailAndPassword(signUpEmail, signUpPassword)
         .then(function (user) { // eslint-disable-line
             firebase.auth().currentUser.updateProfile({
-              displayName: username,
+              displayName: username
             });
             var userID = firebase.auth().currentUser.uid;
-            var creationTime = firebase.auth().currentUser.metadata.creationTime;
-            var lastSigned = firebase.auth().currentUser.metadata.lastSignInTime;
+            var creationTime = firebase.auth().currentUser.metadata
+              .creationTime;
+            var lastSigned = firebase.auth().currentUser.metadata
+              .lastSignInTime;
             firebase
               .database()
               .ref("users")
@@ -316,13 +317,14 @@ export default {
                 createdAt: creationTime,
                 lastSigned: lastSigned,
                 location: {
-                  country: 'Somewhere',
-                  other: ''
+                  country: "Somewhere",
+                  other: ""
                 },
                 flag: "active",
                 favChar: {
                   name: "nobody",
-                  photoUrl: "https://firebasestorage.googleapis.com/v0/b/watch-timer.appspot.com/o/18436.png?alt=media&token=68807595-a777-4c67-a16f-a49d043c2547",
+                  photoUrl:
+                    "https://firebasestorage.googleapis.com/v0/b/watch-timer.appspot.com/o/18436.png?alt=media&token=68807595-a777-4c67-a16f-a49d043c2547",
                   mal_id: "00000"
                 },
                 friends: {

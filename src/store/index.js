@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import firebase from "firebase";
-import createPersistedState from 'vuex-persistedstate';
+import createPersistedState from "vuex-persistedstate";
 
 Vue.use(Vuex);
 

@@ -7,7 +7,7 @@ import Profile from "@/views/Profile.vue";
 import Follows from "@/views/Follows.vue";
 import Users from "@/views/Users.vue";
 import Settings from "@/views/Settings.vue";
-import notFound from "@/views/NotFound.vue"
+import notFound from "@/views/NotFound.vue";
 
 Vue.use(VueRouter);
 
@@ -17,15 +17,15 @@ const routes = [
     name: "home",
     component: Home,
     meta: {
-      title: 'Watchtimer. - Explore animes !',
+      title: "Watchtimer. - Explore animes !",
       metaTags: [
         {
-          name: 'description',
-          content: 'Explore anime\'s worlds freely !'
+          name: "description",
+          content: "Explore anime's worlds freely !"
         },
         {
-          property: 'og:description',
-          content: 'Explore anime\'s worlds freely !'
+          property: "og:description",
+          content: "Explore anime's worlds freely !"
         }
       ]
     }
@@ -43,10 +43,10 @@ const routes = [
   {
     path: "/profile/:id",
     name: "profile",
-    component: Profile,
+    component: Profile
   },
   {
-    path: '/profile/:id/:follow',
+    path: "/profile/:id/:follow",
     name: "follows",
     component: Follows
   },
@@ -64,7 +64,7 @@ const routes = [
     path: "*",
     name: "404",
     component: notFound
-  },
+  }
 ];
 
 const router = new VueRouter({

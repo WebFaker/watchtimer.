@@ -6,13 +6,12 @@ import router from "./router";
 import store from "./store";
 import firebase from "firebase";
 import moment from "moment";
-import VueHead from 'vue-head';
-import VueLodash from 'vue-lodash';
+import VueHead from "vue-head";
+import VueLodash from "vue-lodash";
 
 Vue.use(VueLodash);
- 
-Vue.use(VueHead);
 
+Vue.use(VueHead);
 
 Vue.config.productionTip = false;
 

@@ -1,11 +1,15 @@
 <template>
   <div class="home">
     <div v-if="fullLoad" class="fullLoad">
-      <img class="loader fullLoad_img" src="@/assets/eye.png" alt="">
+      <img class="loader fullLoad_img" src="@/assets/eye.png" alt="" />
     </div>
     <h1 style="margin-top: 50px; text-align: center;">Search for an anime :</h1>
     <a-input-group style="text-align: center;" compact>
-      <a-select style="width: 130px;" defaultValue="anime" @change="handleChange">
+      <a-select
+        style="width: 130px;"
+        defaultValue="anime"
+        @change="handleChange"
+      >
         <a-select-option value="anime">Anime</a-select-option>
         <a-select-option value="character">Characters</a-select-option>
       </a-select>
@@ -18,52 +22,116 @@
       src="@/assets/eye.png"
       alt="Watchtimer Logo"
     />
-    <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+    <div
+      style="display: flex; justify-content: center; align-items: center; flex-direction: column;"
+    >
       <a-card class="main-card" style="margin-top: 50px;" v-if="show">
-        <h2 style="text-align: center;">Results for : <span style="font-weight: bolder;">{{ searchValue }}</span></h2>
-        <div v-if="show" main-card_noMargin style="display: flex; flex-wrap: wrap; justify-content: center;">
-          <a-list style="width: 100%;" itemLayout="vertical" :dataSource="animeResults">
-            <div slot="footer"><b>You didn't found what you want ?</b> Try to be more accurate ! <a-icon type="smile" /></div>
-            <a-list-item @click="showModal(item.mal_id)" slot="renderItem" slot-scope="item" style="cursor: pointer">
-              <template v-if="isLogged === 'true' && searchType == 'character'" slot="actions">
-                <span @click.stop="toggleFav(item.mal_id)" v-if="searchType == 'character'">
-                  <a-icon v-if="$store.state.userList[$store.state.userdb.uid].favChar.mal_id == item.mal_id && isAdding == false" style="color: #ff0000;" twoToneColor="FF0000" type="heart" theme="filled" />
-                  <a-spin
-                    style="height: 18px;"
-                    v-if="isAdding == true"
-                  >
-                    <a-icon slot="indicator" type="loading" style="color: #ff0000; font-size: 12px;" spin />
+        <h2 style="text-align: center;">
+          Results for :
+          <span style="font-weight: bolder;">{{ searchValue }}</span>
+        </h2>
+        <div
+          v-if="show"
+          main-card_noMargin
+          style="display: flex; flex-wrap: wrap; justify-content: center;"
+        >
+          <a-list
+            style="width: 100%;"
+            itemLayout="vertical"
+            :dataSource="animeResults"
+          >
+            <div slot="footer">
+              <b>You didn't found what you want ?</b> Try to be more accurate !
+              <a-icon type="smile" />
+            </div>
+            <a-list-item
+              @click="showModal(item.mal_id)"
+              slot="renderItem"
+              slot-scope="item"
+              style="cursor: pointer"
+            >
+              <template
+                v-if="isLogged === 'true' && searchType == 'character'"
+                slot="actions"
+              >
+                <span
+                  @click.stop="toggleFav(item.mal_id)"
+                  v-if="searchType == 'character'"
+                >
+                  <a-icon
+                    v-if="
+                      $store.state.userList[$store.state.userdb.uid].favChar
+                        .mal_id == item.mal_id && isAdding == false
+                    "
+                    style="color: #ff0000;"
+                    twoToneColor="FF0000"
+                    type="heart"
+                    theme="filled"
+                  />
+                  <a-spin style="height: 18px;" v-if="isAdding == true">
+                    <a-icon
+                      slot="indicator"
+                      type="loading"
+                      style="color: #ff0000; font-size: 12px;"
+                      spin
+                    />
                   </a-spin>
-                  <a-icon v-if="$store.state.userList[$store.state.userdb.uid].favChar.mal_id !== item.mal_id && isAdding == false" style="color: #ff0000;" twoToneColor="FF0000" type="heart" theme="twoTone" />
+                  <a-icon
+                    v-if="
+                      $store.state.userList[$store.state.userdb.uid].favChar
+                        .mal_id !== item.mal_id && isAdding == false
+                    "
+                    style="color: #ff0000;"
+                    twoToneColor="FF0000"
+                    type="heart"
+                    theme="twoTone"
+                  />
                   <span class="desktop">
                     Favorite
                   </span>
                 </span>
               </template>
-              <template v-if="isLogged === 'true' && searchType == 'anime'" slot="actions">
+              <template
+                v-if="isLogged === 'true' && searchType == 'anime'"
+                slot="actions"
+              >
                 <span v-if="searchType == 'anime'">
-                  <a-icon type="heart"/>
+                  <a-icon type="heart" />
                   <span class="desktop">
                     Favorite
                   </span>
                 </span>
                 <span @click.stop="addAnime(item)">
                   <a-icon
-                    v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + item.mal_id) === false && isAdding == false"
+                    v-if="
+                      Object.keys(
+                        $store.state.userList[$store.state.userdb.uid]
+                          .watchedAnimes
+                      ).includes('anime' + item.mal_id) === false &&
+                        isAdding == false
+                    "
                     @click.stop="addAnime(item)"
                     style="color: #ffd500; font-size: 16px;"
                     twoToneColor="ffd500"
                     type="eye"
                     theme="twoTone"
                   />
-                  <a-spin
-                    style="height: 18px;"
-                    v-if="isAdding == true"
-                  >
-                    <a-icon slot="indicator" type="loading" style="color: #ffd500; font-size: 12px;" spin />
+                  <a-spin style="height: 18px;" v-if="isAdding == true">
+                    <a-icon
+                      slot="indicator"
+                      type="loading"
+                      style="color: #ffd500; font-size: 12px;"
+                      spin
+                    />
                   </a-spin>
                   <a-icon
-                    v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + item.mal_id) === true && isAdding == false"
+                    v-if="
+                      Object.keys(
+                        $store.state.userList[$store.state.userdb.uid]
+                          .watchedAnimes
+                      ).includes('anime' + item.mal_id) === true &&
+                        isAdding == false
+                    "
                     style="color: #ffd500; font-size: 16px;"
                     twoToneColor="ffd500"
                     type="eye"
@@ -75,7 +143,16 @@
                 </span>
                 <span v-if="item.episodes">
                   <a-icon
-                    v-if="Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + item.mal_id) === true && isAdding == false && $store.state.userList[$store.state.userdb.uid].watchedAnimes['anime' + item.mal_id].watched == item.episodes"
+                    v-if="
+                      Object.keys(
+                        $store.state.userList[$store.state.userdb.uid]
+                          .watchedAnimes
+                      ).includes('anime' + item.mal_id) === true &&
+                        isAdding == false &&
+                        $store.state.userList[$store.state.userdb.uid]
+                          .watchedAnimes['anime' + item.mal_id].watched ==
+                          item.episodes
+                    "
                     @click.stop="addAnimeFinished(item)"
                     style="color: #008000; font-size: 16px;"
                     type="check"
@@ -98,11 +175,30 @@
                 :src="item.image_url"
               />
               <a-list-item-meta>
-                <p v-if="searchType == 'anime'" class="ant-list-item-meta-title" slot="title">{{ item.title }} <a-tag class="button-div_tags_item">{{ item.rated }}</a-tag></p>
-                <p v-if="searchType == 'anime'" class="ant-list-item-meta-title" slot="title">{{ item.name }}</p>
-                <p v-if="searchType == 'anime'" slot="description">{{ item.episodes || '?' }} episode<span v-if="item.episodes !== 1">s</span> to watch</p>
+                <p
+                  v-if="searchType == 'anime'"
+                  class="ant-list-item-meta-title"
+                  slot="title"
+                >
+                  {{ item.title }}
+                  <a-tag class="button-div_tags_item">{{ item.rated }}</a-tag>
+                </p>
+                <p
+                  v-if="searchType == 'anime'"
+                  class="ant-list-item-meta-title"
+                  slot="title"
+                >
+                  {{ item.name }}
+                </p>
+                <p v-if="searchType == 'anime'" slot="description">
+                  {{ item.episodes || "?" }} episode<span
+                    v-if="item.episodes !== 1"
+                    >s</span
+                  >
+                  to watch
+                </p>
               </a-list-item-meta>
-              {{ item.synopsis || 'There is no synopsis for this anime...' }}
+              {{ item.synopsis || "There is no synopsis for this anime..." }}
             </a-list-item>
           </a-list>
           <!-- <a-card
@@ -166,20 +262,33 @@
               <h3>{{ modal.name }}</h3>
               <p style="color: grey; font-size: 12px;">{{ modal.japanese }}</p>
               <div>
-                <a-tag v-for="(genre, g) in modal.genres" :key="g">{{ genre.name }}</a-tag>
+                <a-tag v-for="(genre, g) in modal.genres" :key="g">{{
+                  genre.name
+                }}</a-tag>
               </div>
               <div v-if="searchType == 'anime'">
-                <router-link class="desktop" :to="`/anime/` + modal.id" target="_blank">
-                  <a-button style="margin-top: 5px;" size="small"><a-icon type="question-circle" /> More details</a-button>
+                <router-link
+                  class="desktop"
+                  :to="`/anime/` + modal.id"
+                  target="_blank"
+                >
+                  <a-button style="margin-top: 5px;" size="small"
+                    ><a-icon type="question-circle" /> More details</a-button
+                  >
                 </router-link>
                 <router-link class="mobile" :to="`/anime/` + modal.id">
-                  <a-button style="margin-top: 5px;" size="small"><a-icon type="question-circle" /> More details</a-button>
+                  <a-button style="margin-top: 5px;" size="small"
+                    ><a-icon type="question-circle" /> More details</a-button
+                  >
                 </router-link>
               </div>
             </div>
           </div>
           <div class="modal_informations">
-            <div v-if="searchType === 'anime' && modal.embed !== null" class="video_wrapper">
+            <div
+              v-if="searchType === 'anime' && modal.embed !== null"
+              class="video_wrapper"
+            >
               <iframe
                 :src="modal.embed"
                 width="100%"
@@ -191,7 +300,11 @@
                 allowfullscreen
               />
             </div>
-            <a-collapse v-if="searchType === 'anime'" style="margin-top: 25px;" :bordered="false">
+            <a-collapse
+              v-if="searchType === 'anime'"
+              style="margin-top: 25px;"
+              :bordered="false"
+            >
               <a-collapse-panel header="Synopsis :" key="1">
                 <p style="white-space: pre-wrap;">{{ modal.synopsis }}</p>
               </a-collapse-panel>
@@ -205,7 +318,9 @@
                 <p style="white-space: pre-wrap;">{{ modal.synopsis }}</p>
               </a-collapse-panel>
               <a-collapse-panel header="Appears in :" key="2">
-                <p v-for="(anime, h) in modal.animeography" :key="h">{{ anime.name }}</p>
+                <p v-for="(anime, h) in modal.animeography" :key="h">
+                  {{ anime.name }}
+                </p>
               </a-collapse-panel>
             </a-collapse>
           </div>
@@ -223,7 +338,13 @@
           style="margin: 10px; width: 240px; position: relative"
         >
           <a-icon
-            v-if="isLogged === 'true' && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + top.mal_id) === false && isAdding == false"
+            v-if="
+              isLogged === 'true' &&
+                Object.keys(
+                  $store.state.userList[$store.state.userdb.uid].watchedAnimes
+                ).includes('anime' + top.mal_id) === false &&
+                isAdding == false
+            "
             @click.stop="addAnime(top)"
             style="color: red; position: absolute; top: 5px; right: 5px; font-size: 20px;"
             twoToneColor="FF0000"
@@ -234,10 +355,21 @@
             v-if="isLogged === 'true' && isAdding == true"
             style="position: absolute; top: 5px; right: 5px;"
           >
-            <a-icon slot="indicator" type="loading" style="font-size: 24px; color: #ffd500; font-size: 20px;" spin />
+            <a-icon
+              slot="indicator"
+              type="loading"
+              style="font-size: 24px; color: #ffd500; font-size: 20px;"
+              spin
+            />
           </a-spin>
           <a-icon
-            v-if="isLogged === 'true' && Object.keys($store.state.userList[$store.state.userdb.uid].watchedAnimes).includes('anime' + top.mal_id) === true && isAdding == false"
+            v-if="
+              isLogged === 'true' &&
+                Object.keys(
+                  $store.state.userList[$store.state.userdb.uid].watchedAnimes
+                ).includes('anime' + top.mal_id) === true &&
+                isAdding == false
+            "
             @click.stop="addAnime(top)"
             style="color: red; position: absolute; top: 5px; right: 5px; font-size: 20px;"
             twoToneColor="FF0000"
@@ -255,7 +387,11 @@
               Started in {{ top.start_date }}
               <br />
               Score : {{ top.score }}/10
-              <a-progress style="width: 100%;" :percent="percent" :format="() => ''" />
+              <a-progress
+                style="width: 100%;"
+                :percent="percent"
+                :format="() => ''"
+              />
               <p>
                 <span>{{ currentEpisode }}</span>
                 / {{ top.episodes }}
@@ -284,7 +420,7 @@
 import Vue from "vue";
 const jikanjs = require("jikanjs");
 import firebase from "firebase";
-import { message } from 'ant-design-vue'
+import { message } from "ant-design-vue";
 
 export default {
   name: "home",
@@ -334,127 +470,196 @@ export default {
   },
   beforeMount() {
     (this.isShowingTop = true),
-    (this.isLoading = false),
-    jikanjs.loadTop("anime").then(response => {
-      this.topResults = response.top;
-      this.fullLoad = false;
-    });
+      (this.isLoading = false),
+      jikanjs.loadTop("anime").then(response => {
+        this.topResults = response.top;
+        this.fullLoad = false;
+      });
   },
   mounted() {
-    this.favCharId = this.$store.state.userList[this.$store.state.userdb.uid].favChar.mal_id
+    this.favCharId = this.$store.state.userList[
+      this.$store.state.userdb.uid
+    ].favChar.mal_id;
   },
   methods: {
     addAnime(value) {
-      if (Object.keys(this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes).includes('anime' + value.mal_id) === false) {
-        this.isAdding = true
+      if (
+        Object.keys(
+          this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes
+        ).includes("anime" + value.mal_id) === false
+      ) {
+        this.isAdding = true;
         jikanjs.loadAnime(value.mal_id).then(response => {
           let user = firebase.auth().currentUser;
-          var title = response.title
+          var title = response.title;
           firebase
-          .database()
-          .ref("users/" + user.uid + "/watchedAnimes/" + 'anime' + response.mal_id)
-          .update({
-            airing: response.airing,
-            name: response.title,
-            episodes: response.episodes,
-            photoUrl: response.image_url,
-            mal_id: response.mal_id,
-            watched: 0
-          })
-          .then(function(){
-            message.success("You just added " + title + " to your watchlist.");
-          });
-          this.isAdding = false
+            .database()
+            .ref(
+              "users/" +
+                user.uid +
+                "/watchedAnimes/" +
+                "anime" +
+                response.mal_id
+            )
+            .update({
+              airing: response.airing,
+              name: response.title,
+              episodes: response.episodes,
+              photoUrl: response.image_url,
+              mal_id: response.mal_id,
+              watched: 0
+            })
+            .then(function() {
+              message.success(
+                "You just added " + title + " to your watchlist."
+              );
+            });
+          this.isAdding = false;
         });
       } else {
-        this.isAdding = true
+        this.isAdding = true;
         firebase
           .database()
-          .ref().child("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + value.mal_id)
+          .ref()
+          .child(
+            "users/" +
+              this.$store.state.userdb.uid +
+              "/watchedAnimes/" +
+              "anime" +
+              value.mal_id
+          )
           .remove()
-          .then(function(){
-            message.success("You just removed " + value.title + " of your watchlist.");
+          .then(function() {
+            message.success(
+              "You just removed " + value.title + " of your watchlist."
+            );
           });
-        this.isAdding = false
+        this.isAdding = false;
       }
     },
     addAnimeFinished(value) {
-      if (Object.keys(this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes).includes('anime' + value.mal_id) === false) {
-        this.isAdding = true
+      if (
+        Object.keys(
+          this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes
+        ).includes("anime" + value.mal_id) === false
+      ) {
+        this.isAdding = true;
         jikanjs.loadAnime(value.mal_id).then(response => {
           let user = firebase.auth().currentUser;
-          var title = response.title
+          var title = response.title;
           firebase
-          .database()
-          .ref("users/" + user.uid + "/watchedAnimes/" + 'anime' + response.mal_id)
-          .update({
-            airing: response.airing,
-            name: response.title,
-            episodes: response.episodes,
-            photoUrl: response.image_url,
-            mal_id: response.mal_id,
-            watched: response.episodes
-          })
-          .then(function(){
-            message.success("You just added " + title + " to your finished animes.");
-          });
-          this.isAdding = false
+            .database()
+            .ref(
+              "users/" +
+                user.uid +
+                "/watchedAnimes/" +
+                "anime" +
+                response.mal_id
+            )
+            .update({
+              airing: response.airing,
+              name: response.title,
+              episodes: response.episodes,
+              photoUrl: response.image_url,
+              mal_id: response.mal_id,
+              watched: response.episodes
+            })
+            .then(function() {
+              message.success(
+                "You just added " + title + " to your finished animes."
+              );
+            });
+          this.isAdding = false;
         });
-      } else if (Object.keys(this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes).includes('anime' + value.mal_id) === true && this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes['anime' + value.mal_id].watched !== value.episodes) {
-        this.isAdding = true
+      } else if (
+        Object.keys(
+          this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes
+        ).includes("anime" + value.mal_id) === true &&
+        this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes[
+          "anime" + value.mal_id
+        ].watched !== value.episodes
+      ) {
+        this.isAdding = true;
         jikanjs.loadAnime(value.mal_id).then(response => {
           let user = firebase.auth().currentUser;
-          var title = response.title
+          var title = response.title;
           firebase
-          .database()
-          .ref("users/" + user.uid + "/watchedAnimes/" + 'anime' + response.mal_id)
-          .update({
-            watched: response.episodes
-          })
-          .then(function(){
-            message.success("You just added " + title + " to your finished animes.");
-          });
-          this.isAdding = false
+            .database()
+            .ref(
+              "users/" +
+                user.uid +
+                "/watchedAnimes/" +
+                "anime" +
+                response.mal_id
+            )
+            .update({
+              watched: response.episodes
+            })
+            .then(function() {
+              message.success(
+                "You just added " + title + " to your finished animes."
+              );
+            });
+          this.isAdding = false;
         });
       } else {
-        this.isAdding = true
+        this.isAdding = true;
         firebase
           .database()
-          .ref("users/" + this.$store.state.userdb.uid + "/watchedAnimes/" + 'anime' + value.mal_id)
+          .ref(
+            "users/" +
+              this.$store.state.userdb.uid +
+              "/watchedAnimes/" +
+              "anime" +
+              value.mal_id
+          )
           .update({
             watched: 0
           })
-          .then(function(){
-            message.success("You just removed " + value.title + " of your finished animes .");
+          .then(function() {
+            message.success(
+              "You just removed " + value.title + " of your finished animes ."
+            );
           });
-        this.isAdding = false
+        this.isAdding = false;
       }
     },
     toggleFav(value) {
-      if (this.$store.state.userList[this.$store.state.userdb.uid].favChar.mal_id === value) {
+      if (
+        this.$store.state.userList[this.$store.state.userdb.uid].favChar
+          .mal_id === value
+      ) {
         let user = firebase.auth().currentUser;
         firebase
-        .database()
-        .ref("users/" + user.uid + "/favChar")
-        .update({
-          name: "nobody",
-          photoUrl: "https://firebasestorage.googleapis.com/v0/b/watch-timer.appspot.com/o/18436.png?alt=media&token=68807595-a777-4c67-a16f-a49d043c2547",
-          mal_id: "00000"
-        });
-        message.success("You just removed this character as your favourite character.");
-      } else {
-        jikanjs.loadCharacter(value).then(response => {
-          console.log(response)
-          let user = firebase.auth().currentUser;
-          firebase
           .database()
           .ref("users/" + user.uid + "/favChar")
           .update({
-            name: response.name,
-            photoUrl: response.image_url,
-            mal_id: response.mal_id
+            name: "nobody",
+            photoUrl:
+              "https://firebasestorage.googleapis.com/v0/b/watch-timer.appspot.com/o/18436.png?alt=media&token=68807595-a777-4c67-a16f-a49d043c2547",
+            mal_id: "00000"
           });
-          message.success("You just set " + this.$store.state.userList[this.$store.state.userdb.uid].favChar.name + " as your favourite character.");
+        message.success(
+          "You just removed this character as your favourite character."
+        );
+      } else {
+        jikanjs.loadCharacter(value).then(response => {
+          console.log(response);
+          let user = firebase.auth().currentUser;
+          firebase
+            .database()
+            .ref("users/" + user.uid + "/favChar")
+            .update({
+              name: response.name,
+              photoUrl: response.image_url,
+              mal_id: response.mal_id
+            });
+          message.success(
+            "You just set " +
+              this.$store.state.userList[this.$store.state.userdb.uid].favChar
+                .name +
+              " as your favourite character."
+          );
         });
       }
     },
@@ -483,7 +688,7 @@ export default {
       this.percent = percent;
     },
     afterClose() {
-      this.modal.name = ""
+      this.modal.name = "";
     },
     showModal(value) {
       this.loading = true;
@@ -530,16 +735,16 @@ export default {
         (this.show = false),
         (this.isShowingTop = false),
         (this.isLoading = true),
-          jikanjs.search(this.searchType, value).then(response => {
-            console.log(response); // eslint-disable-line
-            response.results.forEach(element => {
-              this.animeResults = response.results;
-            });
-            this.show = true;
-            this.isLoading = false
+        jikanjs.search(this.searchType, value).then(response => {
+          console.log(response); // eslint-disable-line
+          response.results.forEach(element => {
+            this.animeResults = response.results;
           });
+          this.show = true;
+          this.isLoading = false;
+        });
     }
-  },
+  }
 };
 </script>
 

@@ -1,24 +1,59 @@
 <template>
   <div>
-    <div v-if="isLoading === true" style="width: 100%; height: calc(100vh - 92px); display: flex; justify-content: center; align-items: center;">
+    <div
+      v-if="isLoading === true"
+      style="width: 100%; height: calc(100vh - 92px); display: flex; justify-content: center; align-items: center;"
+    >
       <a-spin>
-        <a-icon slot="indicator" type="loading" style="font-size: 24px; color: #ffd500; font-size: 48px;" spin />
+        <a-icon
+          slot="indicator"
+          type="loading"
+          style="font-size: 24px; color: #ffd500; font-size: 48px;"
+          spin
+        />
       </a-spin>
     </div>
-    <div v-if="isLoading === false" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+    <div
+      v-if="isLoading === false"
+      style="display: flex; justify-content: center; align-items: center; flex-direction: column;"
+    >
       <a-card class="main-card">
-        <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+        <div
+          style="display: flex; align-items: flex-start; justify-content: space-between;"
+        >
           <div style="display: flex; width: 100%;">
-            <img class="anime_img" :src="animeInfos.image_url" alt="">
+            <img class="anime_img" :src="animeInfos.image_url" alt="" />
             <div style="margin-left: 10px; width: 100%;">
               <h2 style="display: flex; align-items: center; margin-bottom: 0;">
-                <span><span style="margin-right: 5px;">{{ animeInfos.title }}</span><a-tag v-if="animeInfos.airing === true" color="#ffd500">{{ animeInfos.status }}</a-tag><a-tag v-else color="#008000">{{ animeInfos.status }}</a-tag></span>
+                <span
+                  ><span style="margin-right: 5px;">{{ animeInfos.title }}</span
+                  ><a-tag v-if="animeInfos.airing === true" color="#ffd500">{{
+                    animeInfos.status
+                  }}</a-tag
+                  ><a-tag v-else color="#008000">{{
+                    animeInfos.status
+                  }}</a-tag></span
+                >
               </h2>
-              <p style="margin-top: 5px; margin-bottom: 5px;">{{ animeInfos.title_japanese }}</p>
+              <p style="margin-top: 5px; margin-bottom: 5px;">
+                {{ animeInfos.title_japanese }}
+              </p>
               <div class="mobile" style="margin-top: 5px; margin-bottom: 5px;">
-                <a-tag class="button-div_tags_item" v-for="(genre, g) in animeInfos.genres" :key="g">{{ genre.name }}</a-tag>
+                <a-tag
+                  class="button-div_tags_item"
+                  v-for="(genre, g) in animeInfos.genres"
+                  :key="g"
+                  >{{ genre.name }}</a-tag
+                >
               </div>
-              <p><a-icon type="eye" /> {{ animeInfos.episodes ||'?' }} episode<span v-if="animeInfos.episodes > 1">s</span> to watch</p>
+              <p>
+                <a-icon type="eye" />
+                {{ animeInfos.episodes || "?" }} episode<span
+                  v-if="animeInfos.episodes > 1"
+                  >s</span
+                >
+                to watch
+              </p>
               <a-collapse class="desktop" style="width: 100%" :bordered="false">
                 <a-collapse-panel header="Synopsis (Click to expand)" key="1">
                   <p>{{ animeInfos.synopsis }}</p>
@@ -43,7 +78,12 @@
               </a-button>
             </div>
             <div class="button-div_tags desktop">
-              <a-tag class="button-div_tags_item" v-for="(genre, g) in animeInfos.genres" :key="g">{{ genre.name }}</a-tag>
+              <a-tag
+                class="button-div_tags_item"
+                v-for="(genre, g) in animeInfos.genres"
+                :key="g"
+                >{{ genre.name }}</a-tag
+              >
             </div>
             <div class="video_wrapper desktop" style="width: 100%">
               <iframe
@@ -77,7 +117,9 @@
               allowfullscreen
             />
           </div>
-          <p style="margin-top: 25px;"><a-icon type="question" /> Source : {{ animeInfos.source }}</p>
+          <p style="margin-top: 25px;">
+            <a-icon type="question" /> Source : {{ animeInfos.source }}
+          </p>
         </div>
       </a-card>
     </div>
@@ -91,54 +133,67 @@ export default {
   data() {
     return {
       animeInfos: {},
-      name: 'Coucou',
+      name: "Coucou",
       isLoading: true
-    }
+    };
   },
   head: {
-    title: function () {
+    title: function() {
       return {
         inner: `Watchtimer. | Anime page`
-      }
+      };
     },
     // Meta tags
     meta: [
-      { name: 'application-name', content: `Watchtimer. | Anime page` },
-      { name: 'description', content: `See this anime page on Watchtimer.`, id: 'desc' }, // id to replace intead of create element
+      { name: "application-name", content: `Watchtimer. | Anime page` },
+      {
+        name: "description",
+        content: `See this anime page on Watchtimer.`,
+        id: "desc"
+      }, // id to replace intead of create element
       // ...
       // Twitter
-      { property: 'twitter:card', content: 'summary_large_image' },
-      { property: 'twitter:title', content: `Watchtimer. | Anime page` },
-      { property: 'twitter:url', content: 'https://watch-timer.web.app' },
+      { property: "twitter:card", content: "summary_large_image" },
+      { property: "twitter:title", content: `Watchtimer. | Anime page` },
+      { property: "twitter:url", content: "https://watch-timer.web.app" },
       // with shorthand
-      { p: 'twitter:description', c: `See this anime page on Watchtimer.`},
-      { p: 'twitter:image', content: 'https://firebasestorage.googleapis.com/v0/b/watch-timer.appspot.com/o/Splash.jpg?alt=media&token=3110bf05-5eb3-45b1-aca3-0a8d25389d8e' },
+      { p: "twitter:description", c: `See this anime page on Watchtimer.` },
+      {
+        p: "twitter:image",
+        content:
+          "https://firebasestorage.googleapis.com/v0/b/watch-timer.appspot.com/o/Splash.jpg?alt=media&token=3110bf05-5eb3-45b1-aca3-0a8d25389d8e"
+      },
       // ...
       // Google+ / Schema.org
-      { itemprop: 'name', content: `Watchtimer. | Anime page` },
-      { itemprop: 'description', content: `See this anime page on Watchtimer.` },
+      { itemprop: "name", content: `Watchtimer. | Anime page` },
+      {
+        itemprop: "description",
+        content: `See this anime page on Watchtimer.`
+      },
       // ...
       // Facebook / Open Graph
-      { property: 'og:type', content: 'website' },
-      { property: 'fb:app_id', content: '123456789' },
-      { property: 'og:url', content: 'https://watch-timer.web.app' },
-      { property: 'og:title', content: `Watchtimer. | Anime page` },
+      { property: "og:type", content: "website" },
+      { property: "fb:app_id", content: "123456789" },
+      { property: "og:url", content: "https://watch-timer.web.app" },
+      { property: "og:title", content: `Watchtimer. | Anime page` },
       // with shorthand
-      { p: 'og:image', c: 'https://firebasestorage.googleapis.com/v0/b/watch-timer.appspot.com/o/Splash.jpg?alt=media&token=3110bf05-5eb3-45b1-aca3-0a8d25389d8e' },
+      {
+        p: "og:image",
+        c:
+          "https://firebasestorage.googleapis.com/v0/b/watch-timer.appspot.com/o/Splash.jpg?alt=media&token=3110bf05-5eb3-45b1-aca3-0a8d25389d8e"
+      }
       // ...
-    ],
+    ]
   },
-  mounted() {
-
-  },
+  mounted() {},
   beforeCreate() {
     jikanjs.loadAnime(this.$route.params.id).then(response => {
-      this.animeInfos = response
-      console.log(response)
-      this.isLoading = false
+      this.animeInfos = response;
+      console.log(response);
+      this.isLoading = false;
     });
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
