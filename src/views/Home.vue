@@ -155,13 +155,13 @@
                     "
                     @click.stop="addAnimeFinished(item)"
                     style="color: #008000; font-size: 16px;"
-                    type="check"
+                    type="check-circle"
                   />
                   <a-icon
                     v-else
                     @click.stop="addAnimeFinished(item)"
                     style="font-size: 16px;"
-                    type="check"
+                    type="check-circle"
                   />
                   <span class="desktop">
                     Finished
@@ -272,9 +272,17 @@
       <a-skeleton active :loading="loading">
         <div class="modal_container">
           <div style="display: flex; align-items: center;">
-            <img style="max-width: 50%;" :src="modal.img" :alt="modal.name" />
+            <div style="max-width: 50%; position: relative;">
+              <img style="width: 100%;" :src="modal.img" :alt="modal.name" />
+            </div>
             <div style="margin-left: 10px;" class="modal_titles">
-              <h3>{{ modal.name }}</h3>
+              <h3>
+                {{ modal.name }}
+                <a-tag v-if="modal.airing === true" color="#ffd500">{{
+                  modal.status
+                }}</a-tag
+                ><a-tag v-else color="#008000">{{ modal.status }}</a-tag>
+              </h3>
               <p style="color: grey; font-size: 12px;">{{ modal.japanese }}</p>
               <div>
                 <a-tag v-for="(genre, g) in modal.genres" :key="g">{{
@@ -300,6 +308,12 @@
             </div>
           </div>
           <div class="modal_informations">
+            <p
+              style="margin-top: 25px; margin-bottom: 0;"
+              v-if="modal.broadcast"
+            >
+              <a-icon type="calendar" /> Broadcast : {{ modal.broadcast }}
+            </p>
             <div
               v-if="searchType === 'anime' && modal.embed !== null"
               class="video_wrapper"
@@ -361,10 +375,9 @@
                 isAdding == false
             "
             @click.stop="addAnime(top)"
-            style="color: red; position: absolute; top: 5px; right: 5px; font-size: 20px;"
-            twoToneColor="FF0000"
-            type="heart"
-            theme="twoTone"
+            style="color: #ffd500; position: absolute; top: 5px; right: 5px; font-size: 20px;"
+            twoToneColor="ffd500"
+            type="eye"
           />
           <a-spin
             v-if="isLogged === 'true' && isAdding == true"
@@ -386,9 +399,9 @@
                 isAdding == false
             "
             @click.stop="addAnime(top)"
-            style="color: red; position: absolute; top: 5px; right: 5px; font-size: 20px;"
-            twoToneColor="FF0000"
-            type="heart"
+            style="color: #ffd500; position: absolute; top: 5px; right: 5px; font-size: 20px;"
+            twoToneColor="ffd500"
+            type="eye"
             theme="filled"
           />
           <img
@@ -401,18 +414,20 @@
             <template slot="description">
               Started in {{ top.start_date }}
               <br />
-              Score : {{ top.score }}/10
-              <a-progress
-                style="width: 100%;"
-                :percent="percent"
-                :format="() => ''"
-              />
-              <p>
-                <span>{{ currentEpisode }}</span>
-                / {{ top.episodes }}
-              </p>
-              <a-button icon="minus" @click.stop="decline(top.episodes)" />
-              <a-button icon="plus" @click.stop="increase(top.episodes)" />
+              <span>
+                <div class="icon-wrapper">
+                  <a-icon type="frown-o" />
+                  <a-slider
+                    disabled
+                    :tipFormatter="formatter"
+                    :min="0"
+                    :max="10"
+                    v-model="top.score"
+                    :step="0.01"
+                  />
+                  <a-icon type="smile-o" />
+                </div>
+              </span>
             </template>
           </a-card-meta>
         </a-card>
@@ -476,10 +491,13 @@ export default {
         japanese: "",
         img: "",
         id: "",
+        airing: "",
+        status: "",
         synopsis: "",
         genres: "",
         embed: "",
-        animeography: ""
+        animeography: "",
+        broadcast: ""
       }
     };
   },
@@ -497,6 +515,9 @@ export default {
     ].favChar.mal_id;
   },
   methods: {
+    formatter(value) {
+      return "Score : " + value + "/10";
+    },
     addAnime(value) {
       if (
         Object.keys(
@@ -703,7 +724,17 @@ export default {
       this.percent = percent;
     },
     afterClose() {
-      this.modal.name = "";
+      (this.modal.name = ""),
+        (this.modal.japanese = ""),
+        (this.modal.img = ""),
+        (this.modal.id = ""),
+        (this.modal.broadcast = "");
+      this.modal.airing = "";
+      this.modal.status = "";
+      (this.modal.synopsis = ""),
+        (this.modal.genres = ""),
+        (this.modal.embed = ""),
+        (this.modal.animeography = "");
     },
     showModal(value) {
       this.loading = true;
@@ -718,6 +749,9 @@ export default {
           this.modal.synopsis = response.synopsis;
           this.modal.genres = response.genres;
           this.modal.embed = response.trailer_url;
+          this.modal.broadcast = response.broadcast;
+          this.modal.airing = response.airing;
+          this.modal.status = response.status;
           this.loading = false;
         });
       }
@@ -762,6 +796,19 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.ant-slider-disabled {
+  cursor: default;
+}
+.ant-slider-disabled .ant-slider-track {
+  background-color: #ffd500 !important;
+}
+.ant-slider-disabled .ant-slider-handle,
+.ant-slider-disabled .ant-slider-dot {
+  cursor: default;
+}
+</style>
 
 <style lang="scss" scoped>
 .fade-enter-active,
@@ -822,7 +869,7 @@ export default {
 }
 
 .video_wrapper {
-  margin-top: 25px;
+  margin-top: 5px;
   position: relative;
   padding-bottom: 56.25%; /* 16:9, for an aspect ratio of 1:1 change to this value to 100% */
 }
@@ -832,5 +879,28 @@ iframe {
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+.icon-wrapper {
+  position: relative;
+  padding: 0px 30px;
+}
+
+.icon-wrapper .anticon {
+  position: absolute;
+  top: -2px;
+  width: 16px;
+  height: 16px;
+  line-height: 1;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.icon-wrapper .anticon:first-child {
+  left: 0;
+}
+
+.icon-wrapper .anticon:last-child {
+  right: 0;
 }
 </style>

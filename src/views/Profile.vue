@@ -49,9 +49,10 @@
                       detailsModal.episodes
                 "
                 style="color: #008000; font-size: 16px;"
-                type="check"
+                type="check-circle"
+                theme="filled"
               />
-              <a-icon v-else style="font-size: 16px;" type="check" />
+              <a-icon v-else style="font-size: 16px;" type="check-circle" />
               <span style="margin-left: 5px;" class="desktop">
                 Finished
               </span>
@@ -59,53 +60,90 @@
           </a-button>
         </template>
         <a-skeleton active :loading="loading">
-          <img :src="detailsModal.image_url" :alt="detailsModal.title" />
+          <div>
+            <div style="display: flex; align-items: flex-start;">
+              <div style="max-width: 50%;">
+                <img
+                  style="width: 100%;"
+                  :src="detailsModal.image_url"
+                  :alt="detailsModal.title"
+                />
+              </div>
+              <div style="margin-left: 10px;">
+                <h3>
+                  {{ detailsModal.title }}
+                  <a-tag v-if="detailsModal.airing === true" color="#ffd500">{{
+                    detailsModal.status
+                  }}</a-tag
+                  ><a-tag v-else color="#008000">{{
+                    detailsModal.status
+                  }}</a-tag>
+                </h3>
+                <router-link
+                  class="desktop"
+                  :to="`/anime/` + detailsModal.mal_id"
+                  target="_blank"
+                >
+                  <a-button style="margin-top: 5px;" size="small"
+                    ><a-icon type="question-circle" /> More details</a-button
+                  >
+                </router-link>
+                <router-link
+                  class="mobile"
+                  :to="`/anime/` + detailsModal.mal_id"
+                >
+                  <a-button style="margin-top: 5px;" size="small"
+                    ><a-icon type="question-circle" /> More details</a-button
+                  >
+                </router-link>
+              </div>
+            </div>
+            <div
+              v-if="
+                Object.keys(
+                  $store.state.userList[$store.state.userdb.uid].watchedAnimes
+                ).includes('anime' + detailsModal.mal_id) === true
+              "
+            >
+              <span>
+                <a-progress
+                  v-if="detailsModal.episodes"
+                  style="width: 100%;"
+                  :percent="
+                    ($store.state.userList[$store.state.userdb.uid]
+                      .watchedAnimes['anime' + detailsModal.mal_id].watched /
+                      detailsModal.episodes) *
+                      100
+                  "
+                  :format="() => ''"
+                />
+                <span>
+                  {{
+                    $store.state.userList[$store.state.userdb.uid]
+                      .watchedAnimes["anime" + detailsModal.mal_id].watched
+                  }}
+                </span>
+                / {{ detailsModal.episodes || "?" }}
+              </span>
+              <div
+                style="margin-top: 10px; display: flex; align-items: center;"
+              >
+                <a-input-search
+                  placeholder="What episode are you in ?"
+                  @search="changeWatched"
+                  type="number"
+                  onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                >
+                  <a-button slot="enterButton">
+                    <a-icon type="edit" />
+                  </a-button>
+                </a-input-search>
+                <a-button icon="minus" @click.stop="decline(detailsModal)" />
+                <a-button icon="plus" @click.stop="increase(detailsModal)" />
+              </div>
+            </div>
+          </div>
         </a-skeleton>
-        <div
-          v-if="
-            !loading &&
-              Object.keys(
-                $store.state.userList[$store.state.userdb.uid].watchedAnimes
-              ).includes('anime' + detailsModal.mal_id) === true
-          "
-        >
-          <a-progress
-            v-if="detailsModal.episodes"
-            style="width: 100%;"
-            :percent="
-              ($store.state.userList[$store.state.userdb.uid].watchedAnimes[
-                'anime' + detailsModal.mal_id
-              ].watched /
-                detailsModal.episodes) *
-                100
-            "
-            :format="() => ''"
-          />
-          <p>
-            <span>
-              {{
-                $store.state.userList[$store.state.userdb.uid].watchedAnimes[
-                  "anime" + detailsModal.mal_id
-                ].watched
-              }}
-            </span>
-            / {{ detailsModal.episodes || "?" }}
-          </p>
-        </div>
-        <div style="display: flex; align-items: center;">
-          <a-input-search
-            placeholder="What episode are you in ?"
-            @search="changeWatched"
-            type="number"
-            onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-          >
-            <a-button slot="enterButton">
-              <a-icon type="edit" />
-            </a-button>
-          </a-input-search>
-          <a-button icon="minus" @click.stop="decline(detailsModal)" />
-          <a-button icon="plus" @click.stop="increase(detailsModal)" />
-        </div>
       </a-modal>
       <div
         style="display: flex; justify-content: center; align-items: center; flex-direction: column;"
@@ -367,51 +405,53 @@
                   </a-input>
                 </a-form-item>
                 <a-form-item label="Location">
-                  <a-select
-                    v-decorator="[
-                      'country',
-                      {
-                        rules: [
-                          {
-                            required: false
-                          }
-                        ],
-                        initialValue:
-                          $store.state.userList[$store.state.userdb.uid]
-                            .location.country
-                      }
-                    ]"
-                    style="float: left; width: 50%"
-                    showSearch
-                  >
-                    <a-select-option value="0">Somewhere</a-select-option>
-                    <a-select-option v-for="d in orderedCountries" :key="d">{{
-                      d
-                    }}</a-select-option>
-                  </a-select>
-                  <a-input
-                    v-decorator="[
-                      'other',
-                      {
-                        rules: [
-                          {
-                            required: false
-                          }
-                        ],
-                        initialValue:
-                          $store.state.userList[$store.state.userdb.uid]
-                            .location.other
-                      }
-                    ]"
-                    placeholder="Want to be more accurate ?"
-                    style="width: 50%"
-                  >
-                    <a-icon
-                      slot="prefix"
-                      type="environment"
-                      style="color: rgba(0,0,0,.25)"
-                    />
-                  </a-input>
+                  <div style="display: flex; align-items: center;">
+                    <a-select
+                      v-decorator="[
+                        'country',
+                        {
+                          rules: [
+                            {
+                              required: false
+                            }
+                          ],
+                          initialValue:
+                            $store.state.userList[$store.state.userdb.uid]
+                              .location.country
+                        }
+                      ]"
+                      style="float: left; width: 50%"
+                      showSearch
+                    >
+                      <a-select-option value="0">Somewhere</a-select-option>
+                      <a-select-option v-for="d in orderedCountries" :key="d">{{
+                        d
+                      }}</a-select-option>
+                    </a-select>
+                    <a-input
+                      v-decorator="[
+                        'other',
+                        {
+                          rules: [
+                            {
+                              required: false
+                            }
+                          ],
+                          initialValue:
+                            $store.state.userList[$store.state.userdb.uid]
+                              .location.other
+                        }
+                      ]"
+                      placeholder="Want to be more accurate ?"
+                      style="width: 50%"
+                    >
+                      <a-icon
+                        slot="prefix"
+                        type="environment"
+                        style="color: rgba(0,0,0,.25)"
+                      />
+                    </a-input>
+                  </div>
                 </a-form-item>
                 <a-form-item label="Bio">
                   <a-textarea
@@ -796,7 +836,6 @@ export default {
     },
     // Increase and decline watched episodes value
     changeWatched(value) {
-      console.log(this.detailsModal.episodes);
       if (
         this.detailsModal.episodes &&
         value !== (undefined || "") &&
@@ -812,7 +851,7 @@ export default {
               this.detailsModal.mal_id
           )
           .update({
-            watched: value
+            watched: Number(value)
           });
       } else if (!this.detailsModal.episodes) {
         firebase
@@ -825,7 +864,7 @@ export default {
               this.detailsModal.mal_id
           )
           .update({
-            watched: value
+            watched: Number(value)
           });
       } else {
         console.log("Oops");
@@ -847,8 +886,9 @@ export default {
               value.mal_id
           )
           .update({
-            watched: this.$store.state.userList[this.$store.state.userdb.uid]
-              .watchedAnimes["anime" + value.mal_id].watched++
+            watched:
+              this.$store.state.userList[this.$store.state.userdb.uid]
+                .watchedAnimes["anime" + value.mal_id].watched + 1
           });
       } else {
         console.log("Oops");

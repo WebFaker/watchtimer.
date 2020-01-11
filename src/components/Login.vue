@@ -57,6 +57,7 @@
           register now
         </a-button>
       </a-form-item>
+      <!-- <a-button @click="signInGoogle"><a-icon type="google" /> Google</a-button> -->
     </a-form>
     <a-form
       v-if="logStatus === 'register'"
@@ -287,6 +288,35 @@ export default {
           message.error("Oops, " + error.message);
         });
     },
+    signInGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+
+      firebase
+        .auth()
+        .signInWithPopup(provider)
+        .then(function(result) {
+          // This gives you a Google Access Token. You can use it to access the Google API.
+          var token = result.credential.accessToken;
+          console.log(token);
+          // The signed-in user info.
+          var user = result.user;
+          console.log(user);
+          // ...
+        })
+        .catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          console.log(errorCode, errorMessage);
+          // The email of the user's account used.
+          var email = error.email;
+          console.log(email);
+          // The firebase.auth.AuthCredential type that was used.
+          var credential = error.credential;
+          console.log(credential);
+          // ...
+        });
+    },
     signUp() {
       var signUpEmail = this.form.getFieldValue("signUpEmail");
       var signUpPassword = this.form.getFieldValue("signUpPassword");
@@ -334,6 +364,12 @@ export default {
                   followed: {
                     [userID]: userID
                   }
+                },
+                social: {
+                  twitter: "",
+                  instagram: "",
+                  discord: "",
+                  youtube: ""
                 },
                 watchedAnimes: {
                   initialise: 1

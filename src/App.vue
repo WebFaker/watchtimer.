@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <a-back-top />
     <!-- Burger Menu -->
     <div>
       <a-drawer
@@ -24,7 +25,7 @@
           <a-icon @click="onClose" style="padding: 10px;" type="close" />
         </div>
         <div slot="footer">
-          COUCOU
+          Made with ❤️ by fov and nico
         </div>
         <a-menu v-if="isLogged === 'true'" style="border-right: none;">
           <a-menu-item key="1" @click="onClose"
@@ -114,8 +115,8 @@
           >Account</router-link
         >
         <a-dropdown
-          style="margin-left: 5px;"
-          class="desktop"
+          style="margin-left: 10px;"
+          class="desktop-flex"
           v-if="isLogged === 'true'"
         >
           <span style="display: flex; align-items: center;"
@@ -141,13 +142,13 @@
               ></a-menu-item
             >
             <a-menu-item key="4" @click="signOut"
-              ><a-icon type="logout" /> Log out</a-menu-item
+              ><a-icon type="logout" />Log out</a-menu-item
             >
           </a-menu>
         </a-dropdown>
       </div>
     </div>
-    <router-view />
+    <router-view style="margin-top: 100px;" />
     <div id="footer"></div>
   </div>
 </template>
@@ -214,6 +215,12 @@ export default {
 }
 .ant-message {
   z-index: 9999 !important;
+}
+.desktop-flex {
+  display: none !important;
+  @media (min-width: 768px) {
+    display: flex !important;
+  }
 }
 .desktop {
   display: none !important;
@@ -352,10 +359,17 @@ export default {
 }
 
 #nav {
+  background: white;
+  border-bottom: 1px solid #e8e8e8;
+  z-index: 998;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30px;
+  padding: 20px 30px;
 
   a {
     color: #000000;

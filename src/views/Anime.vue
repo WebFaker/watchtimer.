@@ -23,7 +23,7 @@
         >
           <div style="display: flex; width: 100%;">
             <img class="anime_img" :src="animeInfos.image_url" alt="" />
-            <div style="margin-left: 10px; width: 100%;">
+            <div style="margin: 0 10px; width: 100%;">
               <h2 style="display: flex; align-items: center; margin-bottom: 0;">
                 <span
                   ><span style="margin-right: 5px;">{{ animeInfos.title }}</span
@@ -54,29 +54,10 @@
                 >
                 to watch
               </p>
-              <a-collapse class="desktop" style="width: 100%" :bordered="false">
-                <a-collapse-panel header="Synopsis (Click to expand)" key="1">
-                  <p>{{ animeInfos.synopsis }}</p>
-                </a-collapse-panel>
-              </a-collapse>
+              <p class="desktop">{{ animeInfos.synopsis }}</p>
             </div>
           </div>
           <div class="button-div">
-            <div class="button-div_inside">
-              <a-button
-                style="display: flex; align-items: center;"
-                v-if="$store.state.userdb.uid"
-              >
-                <a-icon type="eye" /><span class="desktop"> Watchlist</span>
-              </a-button>
-              <a-button
-                style="display: flex; align-items: center;"
-                class="button-div_button"
-                v-if="$store.state.userdb.uid"
-              >
-                <a-icon type="heart" /><span class="desktop"> Favorite</span>
-              </a-button>
-            </div>
             <div class="button-div_tags desktop">
               <a-tag
                 class="button-div_tags_item"
@@ -102,7 +83,7 @@
         <div class="synopsis" style="margin-top: 10px;">
           <a-collapse class="mobile" :bordered="false">
             <a-collapse-panel header="Synopsis (Click to expand)" key="1">
-              <p>{{ animeInfos.synopsis }}</p>
+              <p class="mobile">{{ animeInfos.synopsis }}</p>
             </a-collapse-panel>
           </a-collapse>
           <div class="video_wrapper mobile" style="width: 100%">
@@ -121,12 +102,60 @@
             <a-icon type="question" /> Source : {{ animeInfos.source }}
           </p>
         </div>
+        <template class="ant-card-actions" slot="actions">
+          <a-button
+            @click.stop="addAnime(animeInfos)"
+            style="display: flex; align-items: center;"
+            class="button-div_button"
+            v-if="$store.state.userdb.uid"
+          >
+            <a-icon
+              v-if="
+                Object.keys(
+                  $store.state.userList[$store.state.userdb.uid].watchedAnimes
+                ).includes('anime' + [$route.params.id]) === true
+              "
+              style="color: #ffd500; font-size: 16px;"
+              type="eye"
+              theme="filled"
+            />
+            <a-icon v-else style="font-size: 16px; color: #ffd500" type="eye" />
+            <span
+              v-if="
+                Object.keys(
+                  $store.state.userList[$store.state.userdb.uid].watchedAnimes
+                ).includes('anime' + [$route.params.id]) === true
+              "
+              class="desktop"
+            >
+              Added
+            </span>
+            <span v-else>Watchlist</span>
+          </a-button>
+          <a-button
+            style="display: flex; align-items: center;"
+            class="button-div_button"
+            v-if="$store.state.userdb.uid"
+          >
+            <a-icon type="heart" /><span class="desktop"> Favorite</span>
+          </a-button>
+          <a-button
+            style="display: flex; align-items: center;"
+            class="button-div_button"
+            v-if="$store.state.userdb.uid"
+          >
+            <a-icon type="check-circle" /><span class="desktop"> Finished</span>
+          </a-button>
+        </template>
+        <div class="button-div_inside"></div>
       </a-card>
     </div>
   </div>
 </template>
 
 <script>
+import firebase from "firebase";
+import { message } from "ant-design-vue";
 const jikanjs = require("jikanjs");
 export default {
   name: "anime",
@@ -185,7 +214,150 @@ export default {
       // ...
     ]
   },
-  mounted() {},
+  methods: {
+    addAnime(value) {
+      if (
+        Object.keys(
+          this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes
+        ).includes("anime" + value.mal_id) === false
+      ) {
+        this.isAdding = true;
+        jikanjs.loadAnime(value.mal_id).then(response => {
+          let user = firebase.auth().currentUser;
+          var title = response.title;
+          firebase
+            .database()
+            .ref(
+              "users/" +
+                user.uid +
+                "/watchedAnimes/" +
+                "anime" +
+                response.mal_id
+            )
+            .update({
+              airing: response.airing,
+              name: response.title,
+              episodes: response.episodes,
+              photoUrl: response.image_url,
+              mal_id: response.mal_id,
+              watched: 0
+            })
+            .then(function() {
+              message.success(
+                "You just added " + title + " to your watchlist."
+              );
+            });
+          this.isAdding = false;
+        });
+      } else {
+        this.isAdding = true;
+        firebase
+          .database()
+          .ref()
+          .child(
+            "users/" +
+              this.$store.state.userdb.uid +
+              "/watchedAnimes/" +
+              "anime" +
+              value.mal_id
+          )
+          .remove()
+          .then(function() {
+            message.success(
+              "You just removed " + value.title + " of your watchlist."
+            );
+          });
+        this.isAdding = false;
+      }
+    },
+    addAnimeFinished(value) {
+      if (
+        Object.keys(
+          this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes
+        ).includes("anime" + value.mal_id) === false
+      ) {
+        this.isAdding = true;
+        jikanjs.loadAnime(value.mal_id).then(response => {
+          let user = firebase.auth().currentUser;
+          var title = response.title;
+          firebase
+            .database()
+            .ref(
+              "users/" +
+                user.uid +
+                "/watchedAnimes/" +
+                "anime" +
+                response.mal_id
+            )
+            .update({
+              airing: response.airing,
+              name: response.title,
+              episodes: response.episodes,
+              photoUrl: response.image_url,
+              mal_id: response.mal_id,
+              watched: response.episodes
+            })
+            .then(function() {
+              message.success(
+                "You just added " + title + " to your finished animes."
+              );
+            });
+          this.isAdding = false;
+        });
+      } else if (
+        Object.keys(
+          this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes
+        ).includes("anime" + value.mal_id) === true &&
+        this.$store.state.userList[this.$store.state.userdb.uid].watchedAnimes[
+          "anime" + value.mal_id
+        ].watched !== value.episodes
+      ) {
+        this.isAdding = true;
+        jikanjs.loadAnime(value.mal_id).then(response => {
+          let user = firebase.auth().currentUser;
+          var title = response.title;
+          firebase
+            .database()
+            .ref(
+              "users/" +
+                user.uid +
+                "/watchedAnimes/" +
+                "anime" +
+                response.mal_id
+            )
+            .update({
+              watched: response.episodes
+            })
+            .then(function() {
+              message.success(
+                "You just added " + title + " to your finished animes."
+              );
+            });
+          this.isAdding = false;
+        });
+      } else {
+        this.isAdding = true;
+        firebase
+          .database()
+          .ref(
+            "users/" +
+              this.$store.state.userdb.uid +
+              "/watchedAnimes/" +
+              "anime" +
+              value.mal_id
+          )
+          .update({
+            watched: 0
+          })
+          .then(function() {
+            message.success(
+              "You just removed " + value.title + " of your finished animes ."
+            );
+          });
+        this.isAdding = false;
+      }
+    }
+  },
   beforeCreate() {
     jikanjs.loadAnime(this.$route.params.id).then(response => {
       this.animeInfos = response;
@@ -236,20 +408,13 @@ iframe {
     &_inside {
       display: flex;
       align-items: center;
-      flex-direction: column;
       width: auto;
-      @media (min-width: 768px) {
-        min-width: calc(229.78px + 5px);
-        height: 32px;
-        flex-direction: row;
-      }
+      flex-direction: row;
     }
     &_button {
-      margin-top: 5px;
-      margin-left: 0px;
       @media (min-width: 768px) {
         margin-top: 0;
-        margin-left: 5px;
+        margin-right: 5px;
       }
     }
     &_tags {
