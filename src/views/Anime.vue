@@ -130,9 +130,10 @@
             >
               Added
             </span>
-            <span v-else>Watchlist</span>
+            <span class="desktop" v-else>Watchlist</span>
           </a-button>
           <a-button
+            disabled
             style="display: flex; align-items: center;"
             class="button-div_button"
             v-if="$store.state.userdb.uid"
@@ -149,11 +150,86 @@
         </template>
         <div class="button-div_inside"></div>
       </a-card>
+      <a-card style="margin-top: 50px;" class="main-card">
+        <h2>Comments :</h2>
+        <a-comment v-for="(comment, f) in $store.state.comments['anime' + $route.params.id]" :key="f">
+          <template slot="actions">
+            <span>
+              <a-tooltip title="Like">
+                <a-icon type="like" />
+              </a-tooltip>
+              <span style="padding-left: '8px';cursor: 'auto'">
+                {{ comment.likes }}
+              </span>
+            </span>
+            <span>
+              <a-tooltip title="Dislike">
+                <!-- :theme="action === 'disliked' ? 'filled' : 'outlined'" -->
+                <a-icon
+                  type="dislike"
+                />
+              </a-tooltip>
+              <span style="padding-left: '8px';cursor: 'auto'">
+                {{ comment.dislikes }}
+              </span>
+            </span>
+            <span>Reply to</span>
+          </template>
+          <a slot="author">{{ $store.state.userList[comment.uid].displayName }}</a>
+          <a-avatar
+            :src="$store.state.userList[comment.uid].photoURL"
+            :alt="$store.state.userList[comment.uid].displayName"
+            slot="avatar"
+          />
+          <p slot="content">
+            {{ comment.message }}
+          </p>
+          <a-tooltip slot="datetime" :title="moment().format('YYYY-MM-DD HH:mm:ss')">
+            <span>{{moment().fromNow()}}</span>
+          </a-tooltip>
+          <a-comment style="margin-left: 50px;" v-for="(reply, g) in comment.replies" :key="g">
+            <template slot="actions">
+              <span>
+                <a-tooltip title="Like">
+                  <a-icon type="like" />
+                </a-tooltip>
+                <span style="padding-left: '8px';cursor: 'auto'">
+                  {{ reply.likes }}
+                </span>
+              </span>
+              <span>
+                <a-tooltip title="Dislike">
+                  <!-- :theme="action === 'disliked' ? 'filled' : 'outlined'" -->
+                  <a-icon
+                    type="dislike"
+                  />
+                </a-tooltip>
+                <span style="padding-left: '8px';cursor: 'auto'">
+                  {{ reply.dislikes }}
+                </span>
+              </span>
+            </template>
+            <a slot="author">{{ $store.state.userList[reply.uid].displayName }}</a>
+            <a-avatar
+              :src="$store.state.userList[reply.uid].photoURL"
+              :alt="$store.state.userList[reply.uid].displayName"
+              slot="avatar"
+            />
+            <p slot="content">
+              {{ reply.message }}
+            </p>
+            <a-tooltip slot="datetime" :title="moment().format('YYYY-MM-DD HH:mm:ss')">
+              <span>{{moment().fromNow()}}</span>
+            </a-tooltip>
+          </a-comment>
+        </a-comment>
+      </a-card>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import firebase from "firebase";
 import { message } from "ant-design-vue";
 const jikanjs = require("jikanjs");
@@ -358,6 +434,15 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters({
+      comments: "comments"
+    })
+  },
+  mounted() {
+    console.log(this.comments)
+    // console.log(this.$store.state.comments['anime' + this.$route.params.id])
+  },
   beforeCreate() {
     jikanjs.loadAnime(this.$route.params.id).then(response => {
       this.animeInfos = response;
@@ -403,7 +488,7 @@ iframe {
     flex-direction: column;
     width: 46px;
     @media (min-width: 768px) {
-      width: calc(229.78px + 5px);
+      width: 30%;
     }
     &_inside {
       display: flex;

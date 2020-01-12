@@ -9,7 +9,13 @@ export default new Vuex.Store({
   state: {
     userdb: "",
     user: "",
-    userList: ""
+    userList: "",
+    comments: ""
+  },
+  getters: {
+    comments(state) {
+      return state.comments
+    }
   },
   plugins: [createPersistedState()],
   mutations: {
@@ -21,6 +27,9 @@ export default new Vuex.Store({
     },
     setUserList(state, userList) {
       state.userList = userList;
+    },
+    setComments(state, commentary) {
+      state.comments = commentary;
     }
   },
   actions: {
@@ -49,6 +58,14 @@ export default new Vuex.Store({
         .ref("/users")
         .on("value", function(snapshot) {
           commit("setUserList", snapshot.val());
+        });
+    },
+    updateComments({ commit }) {
+      return firebase
+        .database()
+        .ref("/comments")
+        .on("value", function(snapshot) {
+          commit("setComments", snapshot.val());
         });
     }
   },

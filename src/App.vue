@@ -180,7 +180,9 @@ export default {
     this.$store.registerModule("userdb", { preserveState: true });
     this.$store.registerModule("userList", { preserveState: true });
     this.$store.registerModule("user", { preserveState: true });
+    this.$store.registerModule("comments", { preserveState: true });
     this.$store.dispatch("updateProfile");
+    this.$store.dispatch("updateComments");
     this.$store.dispatch("updateUserList");
     this.fullLoad = true;
   },
@@ -359,6 +361,7 @@ export default {
 }
 
 #nav {
+  width: 100%;
   background: white;
   border-bottom: 1px solid #e8e8e8;
   z-index: 998;

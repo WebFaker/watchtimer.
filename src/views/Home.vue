@@ -3,7 +3,7 @@
     <div v-if="fullLoad" class="fullLoad">
       <img class="loader fullLoad_img" src="@/assets/eye.png" alt="" />
     </div>
-    <h1 style="margin-top: 50px; text-align: center;">Search for an anime :</h1>
+    <h1 style="margin-top: 50px; text-align: center;">Watchtimer.</h1>
     <a-input-group style="text-align: center;" compact>
       <a-select
         style="width: 130px;"
@@ -263,12 +263,77 @@
       </a-card>
     </div>
     <a-modal
-      :footer="null"
       :afterClose="afterClose"
       :title="modal.name"
       v-model="visible"
       @ok="handleOk"
     >
+      <template slot="footer">
+        <a-button disabled>
+          <span style="display: flex; align-items: center;">
+            <a-icon type="heart" />
+            <span style="margin-left: 5px;" class="desktop">
+              Favorite
+            </span>
+          </span>
+        </a-button>
+        <a-button @click.stop="addAnime(modal)">
+          <span style="display: flex; align-items: center;">
+            <a-icon
+              v-if="
+                Object.keys(
+                  $store.state.userList[$store.state.userdb.uid].watchedAnimes
+                ).includes('anime' + modal.mal_id) === true
+              "
+              style="color: #ffd500; font-size: 16px;"
+              type="eye"
+              theme="filled"
+            />
+            <a-icon
+              v-else
+              style="font-size: 16px; color: #ffd500"
+              type="eye"
+            />
+            <span v-if="
+              Object.keys(
+                $store.state.userList[$store.state.userdb.uid].watchedAnimes
+              ).includes('anime' + modal.mal_id) === true"
+              style="margin-left: 5px;"
+              class="desktop"
+            >
+              Added
+            </span>
+            <span v-else style="margin-left: 5px;" class="desktop">
+              Watchlist
+            </span>
+          </span>
+        </a-button>
+        <a-button
+          v-if="modal.airing == false"
+          @click.stop="addAnimeFinished(modal)"
+        >
+          <span style="display: flex; align-items: center;">
+            <a-icon
+              v-if="
+                Object.keys(
+                  $store.state.userList[$store.state.userdb.uid].watchedAnimes
+                ).includes('anime' + modal.mal_id) === true &&
+                  isAdding == false &&
+                  $store.state.userList[$store.state.userdb.uid]
+                    .watchedAnimes['anime' + modal.mal_id].watched ==
+                    modal.episodes
+              "
+              style="color: #008000; font-size: 16px;"
+              type="check-circle"
+              theme="filled"
+            />
+            <a-icon v-else style="color: #008000; font-size: 16px;" type="check-circle" />
+            <span style="margin-left: 5px;" class="desktop">
+              Finished
+            </span>
+          </span>
+        </a-button>
+      </template>
       <a-skeleton active :loading="loading">
         <div class="modal_container">
           <div style="display: flex; align-items: center;">
@@ -285,24 +350,24 @@
               </h3>
               <p style="color: grey; font-size: 12px;">{{ modal.japanese }}</p>
               <div>
-                <a-tag v-for="(genre, g) in modal.genres" :key="g">{{
+                <a-tag style="margin-bottom: 8px;" v-for="(genre, g) in modal.genres" :key="g">{{
                   genre.name
                 }}</a-tag>
               </div>
               <div v-if="searchType == 'anime'">
                 <router-link
                   class="desktop"
-                  :to="`/anime/` + modal.id"
+                  :to="`/anime/` + modal.mal_id"
                   target="_blank"
                 >
                   <a-button style="margin-top: 5px;" size="small"
                     ><a-icon type="question-circle" /> More details</a-button
                   >
                 </router-link>
-                <router-link class="mobile" :to="`/anime/` + modal.id">
-                  <a-button style="margin-top: 5px;" size="small"
-                    ><a-icon type="question-circle" /> More details</a-button
-                  >
+                <router-link class="mobile" :to="`/anime/` + modal.mal_id">
+                  <a-button style="margin-top: 5px;" size="small">
+                    <a-icon type="question-circle" /> More details
+                  </a-button>
                 </router-link>
               </div>
             </div>
@@ -366,6 +431,7 @@
           hoverable
           style="margin: 10px; width: 240px; position: relative"
         >
+          <a-button size="small" style="position: absolute; top: 5px; right: 5px;" @click.stop="addAnime(top)">
           <a-icon
             v-if="
               isLogged === 'true' &&
@@ -374,14 +440,12 @@
                 ).includes('anime' + top.mal_id) === false &&
                 isAdding == false
             "
-            @click.stop="addAnime(top)"
-            style="color: #ffd500; position: absolute; top: 5px; right: 5px; font-size: 20px;"
+            style="color: #ffd500; font-size: 20px;"
             twoToneColor="ffd500"
             type="eye"
           />
           <a-spin
             v-if="isLogged === 'true' && isAdding == true"
-            style="position: absolute; top: 5px; right: 5px;"
           >
             <a-icon
               slot="indicator"
@@ -398,12 +462,12 @@
                 ).includes('anime' + top.mal_id) === true &&
                 isAdding == false
             "
-            @click.stop="addAnime(top)"
-            style="color: #ffd500; position: absolute; top: 5px; right: 5px; font-size: 20px;"
+            style="color: #ffd500; font-size: 20px;"
             twoToneColor="ffd500"
             type="eye"
             theme="filled"
           />
+          </a-button>
           <img
             style="height: 370px; object-fit: contain; object-position: 50% 0%"
             :src="top.image_url"
@@ -490,7 +554,7 @@ export default {
         name: "",
         japanese: "",
         img: "",
-        id: "",
+        mal_id: "",
         airing: "",
         status: "",
         synopsis: "",
@@ -727,7 +791,7 @@ export default {
       (this.modal.name = ""),
         (this.modal.japanese = ""),
         (this.modal.img = ""),
-        (this.modal.id = ""),
+        (this.modal.mal_id = ""),
         (this.modal.broadcast = "");
       this.modal.airing = "";
       this.modal.status = "";
@@ -739,9 +803,9 @@ export default {
     showModal(value) {
       this.loading = true;
       this.visible = true;
-      this.modal.id = value;
+      this.modal.mal_id = value;
       if (this.searchType === "anime") {
-        jikanjs.loadAnime(this.modal.id).then(response => {
+        jikanjs.loadAnime(this.modal.mal_id).then(response => {
           console.log(response); // eslint-disable-line
           this.modal.name = response.title;
           this.modal.japanese = response.title_japanese;
@@ -756,7 +820,7 @@ export default {
         });
       }
       if (this.searchType === "character") {
-        jikanjs.loadCharacter(this.modal.id).then(response => {
+        jikanjs.loadCharacter(this.modal.mal_id).then(response => {
           console.log(response); // eslint-disable-line
           this.modal.name = response.name;
           this.modal.japanese = response.name_kanji;
