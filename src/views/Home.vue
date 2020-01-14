@@ -104,10 +104,11 @@
                 <span @click.stop="addAnime(item)">
                   <a-icon
                     v-if="
-                      Object.keys(
-                        $store.state.userList[$store.state.userdb.uid]
-                          .watchedAnimes
-                      ).includes('anime' + item.mal_id) === false &&
+                      isLogged === 'true' &&
+                        Object.keys(
+                          $store.state.userList[$store.state.userdb.uid]
+                            .watchedAnimes
+                        ).includes('anime' + item.mal_id) === false &&
                         isAdding == false
                     "
                     @click.stop="addAnime(item)"
@@ -126,10 +127,11 @@
                   </a-spin>
                   <a-icon
                     v-if="
-                      Object.keys(
-                        $store.state.userList[$store.state.userdb.uid]
-                          .watchedAnimes
-                      ).includes('anime' + item.mal_id) === true &&
+                      isLogged === 'true' &&
+                        Object.keys(
+                          $store.state.userList[$store.state.userdb.uid]
+                            .watchedAnimes
+                        ).includes('anime' + item.mal_id) === true &&
                         isAdding == false
                     "
                     style="color: #ffd500; font-size: 16px;"
@@ -144,10 +146,11 @@
                 <span v-if="item.episodes">
                   <a-icon
                     v-if="
-                      Object.keys(
-                        $store.state.userList[$store.state.userdb.uid]
-                          .watchedAnimes
-                      ).includes('anime' + item.mal_id) === true &&
+                      isLogged === 'true' &&
+                        Object.keys(
+                          $store.state.userList[$store.state.userdb.uid]
+                            .watchedAnimes
+                        ).includes('anime' + item.mal_id) === true &&
                         isAdding == false &&
                         $store.state.userList[$store.state.userdb.uid]
                           .watchedAnimes['anime' + item.mal_id].watched ==
@@ -281,23 +284,23 @@
           <span style="display: flex; align-items: center;">
             <a-icon
               v-if="
-                Object.keys(
-                  $store.state.userList[$store.state.userdb.uid].watchedAnimes
-                ).includes('anime' + modal.mal_id) === true
+                isLogged === 'true' &&
+                  Object.keys(
+                    $store.state.userList[$store.state.userdb.uid].watchedAnimes
+                  ).includes('anime' + modal.mal_id) === true
               "
               style="color: #ffd500; font-size: 16px;"
               type="eye"
               theme="filled"
             />
-            <a-icon
-              v-else
-              style="font-size: 16px; color: #ffd500"
-              type="eye"
-            />
-            <span v-if="
-              Object.keys(
-                $store.state.userList[$store.state.userdb.uid].watchedAnimes
-              ).includes('anime' + modal.mal_id) === true"
+            <a-icon v-else style="font-size: 16px; color: #ffd500" type="eye" />
+            <span
+              v-if="
+                isLogged === 'true' &&
+                  Object.keys(
+                    $store.state.userList[$store.state.userdb.uid].watchedAnimes
+                  ).includes('anime' + modal.mal_id) === true
+              "
               style="margin-left: 5px;"
               class="desktop"
             >
@@ -315,19 +318,24 @@
           <span style="display: flex; align-items: center;">
             <a-icon
               v-if="
-                Object.keys(
-                  $store.state.userList[$store.state.userdb.uid].watchedAnimes
-                ).includes('anime' + modal.mal_id) === true &&
+                isLogged === 'true' &&
+                  Object.keys(
+                    $store.state.userList[$store.state.userdb.uid].watchedAnimes
+                  ).includes('anime' + modal.mal_id) === true &&
                   isAdding == false &&
-                  $store.state.userList[$store.state.userdb.uid]
-                    .watchedAnimes['anime' + modal.mal_id].watched ==
-                    modal.episodes
+                  $store.state.userList[$store.state.userdb.uid].watchedAnimes[
+                    'anime' + modal.mal_id
+                  ].watched == modal.episodes
               "
               style="color: #008000; font-size: 16px;"
               type="check-circle"
               theme="filled"
             />
-            <a-icon v-else style="color: #008000; font-size: 16px;" type="check-circle" />
+            <a-icon
+              v-else
+              style="color: #008000; font-size: 16px;"
+              type="check-circle"
+            />
             <span style="margin-left: 5px;" class="desktop">
               Finished
             </span>
@@ -350,9 +358,12 @@
               </h3>
               <p style="color: grey; font-size: 12px;">{{ modal.japanese }}</p>
               <div>
-                <a-tag style="margin-bottom: 8px;" v-for="(genre, g) in modal.genres" :key="g">{{
-                  genre.name
-                }}</a-tag>
+                <a-tag
+                  style="margin-bottom: 8px;"
+                  v-for="(genre, g) in modal.genres"
+                  :key="g"
+                  >{{ genre.name }}</a-tag
+                >
               </div>
               <div v-if="searchType == 'anime'">
                 <router-link
@@ -431,42 +442,41 @@
           hoverable
           style="margin: 10px; width: 240px; position: relative"
         >
-          <a-button size="small" style="position: absolute; top: 5px; right: 5px;" @click.stop="addAnime(top)">
-          <a-icon
-            v-if="
-              isLogged === 'true' &&
-                Object.keys(
-                  $store.state.userList[$store.state.userdb.uid].watchedAnimes
-                ).includes('anime' + top.mal_id) === false &&
-                isAdding == false
-            "
-            style="color: #ffd500; font-size: 20px;"
-            twoToneColor="ffd500"
-            type="eye"
-          />
-          <a-spin
-            v-if="isLogged === 'true' && isAdding == true"
+          <a-button
+            v-if="isLogged === 'true'"
+            size="small"
+            style="position: absolute; top: 5px; right: 5px;"
+            @click.stop="addAnime(top)"
           >
             <a-icon
-              slot="indicator"
-              type="loading"
-              style="font-size: 24px; color: #ffd500; font-size: 20px;"
-              spin
-            />
-          </a-spin>
-          <a-icon
-            v-if="
-              isLogged === 'true' &&
+              v-if="
                 Object.keys(
                   $store.state.userList[$store.state.userdb.uid].watchedAnimes
-                ).includes('anime' + top.mal_id) === true &&
-                isAdding == false
-            "
-            style="color: #ffd500; font-size: 20px;"
-            twoToneColor="ffd500"
-            type="eye"
-            theme="filled"
-          />
+                ).includes('anime' + top.mal_id) === false && isAdding == false
+              "
+              style="color: #ffd500; font-size: 20px;"
+              twoToneColor="ffd500"
+              type="eye"
+            />
+            <a-spin v-if="isAdding == true">
+              <a-icon
+                slot="indicator"
+                type="loading"
+                style="font-size: 24px; color: #ffd500; font-size: 20px;"
+                spin
+              />
+            </a-spin>
+            <a-icon
+              v-if="
+                Object.keys(
+                  $store.state.userList[$store.state.userdb.uid].watchedAnimes
+                ).includes('anime' + top.mal_id) === true && isAdding == false
+              "
+              style="color: #ffd500; font-size: 20px;"
+              twoToneColor="ffd500"
+              type="eye"
+              theme="filled"
+            />
           </a-button>
           <img
             style="height: 370px; object-fit: contain; object-position: 50% 0%"

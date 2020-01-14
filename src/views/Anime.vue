@@ -152,7 +152,41 @@
       </a-card>
       <a-card style="margin-top: 50px;" class="main-card">
         <h2>Comments :</h2>
-        <a-comment v-for="(comment, f) in $store.state.comments['anime' + $route.params.id]" :key="f">
+        <a-form :form="form" @submit="addComment">
+          <a-form-item>
+            <a-textarea
+              :autosize="{ minRows: 2 }"
+              v-decorator="[
+                'comment',
+                {
+                  rules: [
+                    {
+                      required: true,
+                      message: `You can't send an empty comment !`
+                    }
+                  ]
+                }
+              ]"
+              placeholder="Add a comment here"
+            >
+            </a-textarea>
+          </a-form-item>
+          <a-form-item>
+            <a-button
+              type="primary"
+              html-type="submit"
+              class="login-form-button"
+            >
+              Send
+            </a-button>
+          </a-form-item>
+        </a-form>
+        <a-comment
+          v-for="(comment, f) in $store.state.comments[
+            'anime' + $route.params.id
+          ]"
+          :key="f"
+        >
           <template slot="actions">
             <span>
               <a-tooltip title="Like">
@@ -165,9 +199,7 @@
             <span>
               <a-tooltip title="Dislike">
                 <!-- :theme="action === 'disliked' ? 'filled' : 'outlined'" -->
-                <a-icon
-                  type="dislike"
-                />
+                <a-icon type="dislike" />
               </a-tooltip>
               <span style="padding-left: '8px';cursor: 'auto'">
                 {{ comment.dislikes }}
@@ -175,7 +207,9 @@
             </span>
             <span>Reply to</span>
           </template>
-          <a slot="author">{{ $store.state.userList[comment.uid].displayName }}</a>
+          <a slot="author">{{
+            $store.state.userList[comment.uid].displayName
+          }}</a>
           <a-avatar
             :src="$store.state.userList[comment.uid].photoURL"
             :alt="$store.state.userList[comment.uid].displayName"
@@ -184,10 +218,17 @@
           <p slot="content">
             {{ comment.message }}
           </p>
-          <a-tooltip slot="datetime" :title="moment().format('YYYY-MM-DD HH:mm:ss')">
-            <span>{{moment().fromNow()}}</span>
+          <a-tooltip
+            slot="datetime"
+            :title="moment().format('YYYY-MM-DD HH:mm:ss')"
+          >
+            <span>{{ moment().fromNow() }}</span>
           </a-tooltip>
-          <a-comment style="margin-left: 50px;" v-for="(reply, g) in comment.replies" :key="g">
+          <a-comment
+            style="margin-left: 50px;"
+            v-for="(reply, g) in comment.replies"
+            :key="g"
+          >
             <template slot="actions">
               <span>
                 <a-tooltip title="Like">
@@ -200,16 +241,16 @@
               <span>
                 <a-tooltip title="Dislike">
                   <!-- :theme="action === 'disliked' ? 'filled' : 'outlined'" -->
-                  <a-icon
-                    type="dislike"
-                  />
+                  <a-icon type="dislike" />
                 </a-tooltip>
                 <span style="padding-left: '8px';cursor: 'auto'">
                   {{ reply.dislikes }}
                 </span>
               </span>
             </template>
-            <a slot="author">{{ $store.state.userList[reply.uid].displayName }}</a>
+            <a slot="author">{{
+              $store.state.userList[reply.uid].displayName
+            }}</a>
             <a-avatar
               :src="$store.state.userList[reply.uid].photoURL"
               :alt="$store.state.userList[reply.uid].displayName"
@@ -218,8 +259,11 @@
             <p slot="content">
               {{ reply.message }}
             </p>
-            <a-tooltip slot="datetime" :title="moment().format('YYYY-MM-DD HH:mm:ss')">
-              <span>{{moment().fromNow()}}</span>
+            <a-tooltip
+              slot="datetime"
+              :title="moment().format('YYYY-MM-DD HH:mm:ss')"
+            >
+              <span>{{ moment().fromNow() }}</span>
             </a-tooltip>
           </a-comment>
         </a-comment>
@@ -229,6 +273,7 @@
 </template>
 
 <script>
+import moment from "moment";
 import { mapGetters } from "vuex";
 import firebase from "firebase";
 import { message } from "ant-design-vue";
@@ -239,7 +284,9 @@ export default {
     return {
       animeInfos: {},
       name: "Coucou",
-      isLoading: true
+      isLoading: true,
+
+      currentComment: undefined
     };
   },
   head: {
@@ -291,6 +338,54 @@ export default {
     ]
   },
   methods: {
+    addComment(e) {
+      e.preventDefault();
+      if (this.$store.state.comments["anime" + this.$route.params.id]) {
+        this.currentComment =
+          Object.keys(
+            this.$store.state.comments["anime" + this.$route.params.id]
+          ).length + 1;
+      } else {
+        this.currentComment = 1;
+      }
+      console.log(this.currentComment);
+      this.form.validateFields((err, values) => {
+        if (this.$store.state.userdb.uid && !err) {
+          var timestamp = moment().format();
+          firebase
+            .database()
+            .ref(
+              "comments/" +
+                "anime" +
+                this.$route.params.id +
+                "/comment" +
+                this.currentComment
+            )
+            .update({
+              dislikes: 0,
+              likes: 0,
+              message: values.comment,
+              timestamp: timestamp,
+              uid: this.$store.state.userdb.uid
+            })
+            .then(function() {
+              message.success("Comment added !");
+            });
+          console.log("Received values of form: ", values);
+        } else if (!err) {
+          this.$confirm({
+            title: "You can't comment yet !",
+            content: (
+              <div>You need to be logged in or registered to comment.</div>
+            ),
+            okText: "Login / Register",
+            onOk() {
+              this.$router.push("/login");
+            }
+          });
+        }
+      });
+    },
     addAnime(value) {
       if (
         Object.keys(
@@ -440,10 +535,11 @@ export default {
     })
   },
   mounted() {
-    console.log(this.comments)
+    console.log(this.comments);
     // console.log(this.$store.state.comments['anime' + this.$route.params.id])
   },
   beforeCreate() {
+    this.form = this.$form.createForm(this, { name: "comment" });
     jikanjs.loadAnime(this.$route.params.id).then(response => {
       this.animeInfos = response;
       console.log(response);

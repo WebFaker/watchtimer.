@@ -14,7 +14,7 @@ export default new Vuex.Store({
   },
   getters: {
     comments(state) {
-      return state.comments
+      return state.comments;
     }
   },
   plugins: [createPersistedState()],
