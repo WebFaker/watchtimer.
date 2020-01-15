@@ -153,7 +153,7 @@
       <a-card style="margin-top: 50px;" class="main-card">
         <h2>Comments :</h2>
         <a-form :form="form" @submit="addComment">
-          <a-form-item>
+          <a-form-item style="margin-bottom: 0;">
             <a-textarea
               :autosize="{ minRows: 2 }"
               v-decorator="[
@@ -181,53 +181,12 @@
             </a-button>
           </a-form-item>
         </a-form>
-        <a-comment
-          v-for="(comment, f) in $store.state.comments[
-            'anime' + $route.params.id
-          ]"
-          :key="f"
-        >
-          <template slot="actions">
-            <span>
-              <a-tooltip title="Like">
-                <a-icon type="like" />
-              </a-tooltip>
-              <span style="padding-left: '8px';cursor: 'auto'">
-                {{ comment.likes }}
-              </span>
-            </span>
-            <span>
-              <a-tooltip title="Dislike">
-                <!-- :theme="action === 'disliked' ? 'filled' : 'outlined'" -->
-                <a-icon type="dislike" />
-              </a-tooltip>
-              <span style="padding-left: '8px';cursor: 'auto'">
-                {{ comment.dislikes }}
-              </span>
-            </span>
-            <span>Reply to</span>
-          </template>
-          <a slot="author">{{
-            $store.state.userList[comment.uid].displayName
-          }}</a>
-          <a-avatar
-            :src="$store.state.userList[comment.uid].photoURL"
-            :alt="$store.state.userList[comment.uid].displayName"
-            slot="avatar"
-          />
-          <p slot="content">
-            {{ comment.message }}
-          </p>
-          <a-tooltip
-            slot="datetime"
-            :title="moment().format('YYYY-MM-DD HH:mm:ss')"
-          >
-            <span>{{ moment().fromNow() }}</span>
-          </a-tooltip>
+        <div v-if="$store.state.comments['anime' + $route.params.id]">
           <a-comment
-            style="margin-left: 50px;"
-            v-for="(reply, g) in comment.replies"
-            :key="g"
+            v-for="(comment, f) in $store.state.comments[
+              'anime' + $route.params.id
+            ]"
+            :key="f"
           >
             <template slot="actions">
               <span>
@@ -235,7 +194,7 @@
                   <a-icon type="like" />
                 </a-tooltip>
                 <span style="padding-left: '8px';cursor: 'auto'">
-                  {{ reply.likes }}
+                  {{ comment.likes }}
                 </span>
               </span>
               <span>
@@ -244,20 +203,21 @@
                   <a-icon type="dislike" />
                 </a-tooltip>
                 <span style="padding-left: '8px';cursor: 'auto'">
-                  {{ reply.dislikes }}
+                  {{ comment.dislikes }}
                 </span>
               </span>
+              <span @click="toggleReply(f)"><span v-if="isReplying === false">Reply to {{ $store.state.userList[comment.uid].displayName }}</span><span v-else>Cancel replying</span></span>
             </template>
             <a slot="author">{{
-              $store.state.userList[reply.uid].displayName
+              $store.state.userList[comment.uid].displayName
             }}</a>
             <a-avatar
-              :src="$store.state.userList[reply.uid].photoURL"
-              :alt="$store.state.userList[reply.uid].displayName"
+              :src="$store.state.userList[comment.uid].photoURL"
+              :alt="$store.state.userList[comment.uid].displayName"
               slot="avatar"
             />
             <p slot="content">
-              {{ reply.message }}
+              {{ comment.message }}
             </p>
             <a-tooltip
               slot="datetime"
@@ -265,8 +225,99 @@
             >
               <span>{{ moment().fromNow() }}</span>
             </a-tooltip>
+            <a-comment
+              style="margin-left: 50px;"
+              v-for="(reply, g) in comment.replies"
+              :key="g"
+            >
+              <template slot="actions">
+                <span>
+                  <a-tooltip title="Like">
+                    <a-icon type="like" />
+                  </a-tooltip>
+                  <span style="padding-left: '8px';cursor: 'auto'">
+                    {{ reply.likes }}
+                  </span>
+                </span>
+                <span>
+                  <a-tooltip title="Dislike">
+                    <!-- :theme="action === 'disliked' ? 'filled' : 'outlined'" -->
+                    <a-icon type="dislike" />
+                  </a-tooltip>
+                  <span style="padding-left: '8px';cursor: 'auto'">
+                    {{ reply.dislikes }}
+                  </span>
+                </span>
+              </template>
+              <a slot="author">
+                {{ $store.state.userList[reply.uid].displayName }}</a>
+              <a-avatar
+                :src="$store.state.userList[reply.uid].photoURL"
+                :alt="$store.state.userList[reply.uid].displayName"
+                slot="avatar"
+              />
+              <p slot="content">
+                {{ reply.message }}
+              </p>
+              <a-tooltip
+                slot="datetime"
+                :title="moment().format('YYYY-MM-DD HH:mm:ss')"
+              >
+                <span>{{ moment().fromNow() }}</span>
+              </a-tooltip>
+            </a-comment>
+            <a-form v-if="isReplying === true && replyingKey === f" style="margin-left: 50px;" :form="formReply" @submit="addReply">
+              <a-form-item style="margin-bottom: 0;">
+                <a-textarea
+                  :autosize="{ minRows: 1 }"
+                  v-decorator="[
+                    'reply',
+                    {
+                      rules: [
+                        {
+                          required: true,
+                          message: `You can't send an empty reply !`
+                        }
+                      ]
+                    }
+                  ]"
+                  placeholder="Add a reply here"
+                >
+                </a-textarea>
+              </a-form-item>
+              <a-form-item v-show="false">
+                <a-input
+                  v-decorator="[
+                    'replyingKey',
+                    {
+                      initialValue: f,
+                      rules: [
+                        {
+                          required: false
+                        }
+                      ]
+                    }
+                  ]"
+                  :value="f"
+                >
+                </a-input>
+              </a-form-item>
+              <a-form-item>
+                <a-button
+                  size="small"
+                  type="primary"
+                  html-type="submit"
+                  class="login-form-button"
+                >
+                  Reply
+                </a-button>
+              </a-form-item>
+            </a-form>
           </a-comment>
-        </a-comment>
+        </div>
+        <div v-else>
+          There is no comments for this anime. Be the first to add one !
+        </div>
       </a-card>
     </div>
   </div>
@@ -285,8 +336,11 @@ export default {
       animeInfos: {},
       name: "Coucou",
       isLoading: true,
+      isReplying: false,
+      replyingKey: "",
 
-      currentComment: undefined
+      currentComment: undefined,
+      currentReply: undefined
     };
   },
   head: {
@@ -338,6 +392,63 @@ export default {
     ]
   },
   methods: {
+    toggleReply(value) {
+      if (this.isReplying === true) {
+        this.replyingKey = ""
+        this.isReplying = false
+      } else {
+        this.replyingKey = value
+        this.isReplying = true
+      }
+    },
+    // addReply(e) {
+    //   e.preventDefault();
+    //   this.formReply.validateFields((err, values) => {
+    //     if (this.$store.state.comments["anime" + this.$route.params.id]) {
+    //     this.currentReply =
+    //     Object.keys(
+    //       this.$store.state.comments["anime" + this.$route.params.id][values.replyingKey].replies
+    //     ).length + 1;
+    //   } else {
+    //     this.currentReply = 1;
+    //   }
+    //     console.log(values)
+    //     if (this.$store.state.userdb.uid && !err) {
+    //       var timestamp = moment().format();
+    //       firebase
+    //         .database()
+    //         .ref(
+    //           "comments/" + "anime" +
+    //             this.$route.params.id + "/" +
+    //             values.replyingKey + "/" +
+    //             "/replies" +
+    //             "/reply" + this.currentReply
+    //         )
+    //         .update({
+    //           dislikes: 0,
+    //           likes: 0,
+    //           message: values.reply,
+    //           timestamp: timestamp,
+    //           uid: this.$store.state.userdb.uid
+    //         })
+    //         .then(function() {
+    //           message.success("Reply added !");
+    //         });
+    //       console.log("Received values of form: ", values);
+    //     } else if (!err) {
+    //       this.$confirm({
+    //         title: "You can't reply yet !",
+    //         content: (
+    //           <div>You need to be logged in or registered to reply.</div>
+    //         ),
+    //         okText: "Login / Register",
+    //         onOk() {
+    //           this.$router.push("/login");
+    //         }
+    //       });
+    //     }
+    //   });
+    // },
     addComment(e) {
       e.preventDefault();
       if (this.$store.state.comments["anime" + this.$route.params.id]) {
@@ -348,7 +459,6 @@ export default {
       } else {
         this.currentComment = 1;
       }
-      console.log(this.currentComment);
       this.form.validateFields((err, values) => {
         if (this.$store.state.userdb.uid && !err) {
           var timestamp = moment().format();
@@ -540,6 +650,7 @@ export default {
   },
   beforeCreate() {
     this.form = this.$form.createForm(this, { name: "comment" });
+    this.formReply = this.$form.createForm(this, { name: "reply" });
     jikanjs.loadAnime(this.$route.params.id).then(response => {
       this.animeInfos = response;
       console.log(response);
@@ -548,6 +659,12 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.ant-comment-inner {
+  padding: 16px 0 0;
+}
+</style>
 
 <style lang="scss" scoped>
 .video_wrapper {
