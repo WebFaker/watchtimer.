@@ -486,6 +486,113 @@
             </div>
           </div>
         </a-card>
+        <a-card
+          v-if="Object.keys(notStartedAnimes).length !== 0"
+          class="main-card"
+          style="margin-top: 50px;"
+        >
+          <h2>
+            <span v-if="$route.params.id === $store.state.userdb.uid"
+              >Not started</span
+            ><span v-else
+              >{{ $store.state.userList[$route.params.id].displayName }}'s
+              animes</span
+            >
+            ({{
+              Object.keys(
+                notStartedAnimes
+              ).length
+            }})
+          </h2>
+          <div
+            class="main-card_noMargin"
+            style="display: flex; flex-wrap: wrap;"
+          >
+            <carousel style="width: 100%;" :per-page="deviceSize" :mouse-drag="true">
+              <slide
+                class="anime-card_outside"
+                v-for="(anime, f) in notStartedAnimes"
+                :key="f"
+              >
+                <a-card
+                  @click="showDetails(anime.mal_id)"
+                  class="anime-card"
+                  v-if="anime !== 1"
+                  hoverable
+                  style="position: relative; cursor: pointer;"
+                >
+                  <a-button
+                    @click.stop="addAnime(anime)"
+                    size="small"
+                    style="position: absolute; top: 5px; right: 5px;"
+                  >
+                    <a-icon
+                      v-if="
+                        Object.keys(
+                          $store.state.userList[$store.state.userdb.uid]
+                            .watchedAnimes
+                        ).includes('anime' + anime.mal_id) === false &&
+                          isAdding == false
+                      "
+                      style="color: #ffd500; font-size: 20px;"
+                      twoToneColor="ffd500"
+                      type="eye"
+                    />
+                    <a-spin v-if="isAdding == true">
+                      <a-icon
+                        slot="indicator"
+                        type="loading"
+                        style="color: #ffd500; font-size: 16px;"
+                        spin
+                      />
+                    </a-spin>
+                    <a-icon
+                      v-if="
+                        Object.keys(
+                          $store.state.userList[$store.state.userdb.uid]
+                            .watchedAnimes
+                        ).includes('anime' + anime.mal_id) === true &&
+                          isAdding == false
+                      "
+                      style="color: #ffd500; font-size: 20px;"
+                      twoToneColor="ffd500"
+                      type="eye"
+                      theme="filled"
+                    />
+                  </a-button>
+                  <div style="width: 100%; position: absolute; bottom: 0px;">
+                    <a-tag style="margin: 5px">
+                      {{
+                        $store.state.userList[$route.params.id].watchedAnimes[
+                          "anime" + anime.mal_id
+                        ].watched
+                      }}
+                      / {{ anime.episodes || "?" }}
+                    </a-tag>
+                    <a-progress
+                      v-if="anime.airing === false"
+                      style="width: 100%;"
+                      :percent="
+                        ($store.state.userList[$route.params.id].watchedAnimes[
+                          'anime' + anime.mal_id
+                        ].watched /
+                          anime.episodes) *
+                          100
+                      "
+                      :format="() => ''"
+                    />
+                  </div>
+                  <img
+                    class="anime-card_img"
+                    :src="anime.photoUrl"
+                    :alt="anime.name"
+                    slot="cover"
+                    />
+                </a-card>
+              </slide>
+            </carousel>
+          </div>
+        </a-card>
         <a-card class="main-card" style="margin-top: 50px;">
           <h2>
             <span v-if="$route.params.id === $store.state.userdb.uid"
@@ -496,7 +603,7 @@
             >
             ({{
               Object.keys(
-                this.$store.state.userList[this.$route.params.id].watchedAnimes
+                $store.state.userList[$route.params.id].watchedAnimes
               ).length - 1
             }})
           </h2>
@@ -737,6 +844,8 @@ export default {
   name: "Profile",
   data() {
     return {
+      deviceSize: '',
+
       headers: {
         authorization: "authorization-text"
       },
@@ -809,6 +918,33 @@ export default {
       ];
     }
   },
+  mounted() {
+    console.log(this.notStartedAnimes)
+    if (window.innerWidth > 1440) {
+      this.deviceSize = 6
+    } else if (window.innerWidth > 1024) {
+      this.deviceSize = 5
+    } else if (window.innerWidth > 768) {
+      this.deviceSize = 4
+    } else if (window.innerWidth > 468) {
+      this.deviceSize = 3
+    } else {
+      this.deviceSize = 2
+    }
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 1440) {
+        this.deviceSize = 6
+      } else if (window.innerWidth > 1024) {
+        this.deviceSize = 5
+      } else if (window.innerWidth > 768) {
+        this.deviceSize = 4
+      } else if (window.innerWidth > 468) {
+        this.deviceSize = 3
+      } else {
+        this.deviceSize = 2
+      }
+    })
+  },
   beforeCreate() {
     this.imageData = null;
     this.bform = this.$form.createForm(this, { name: "edit" });
@@ -822,7 +958,10 @@ export default {
         this.$store.state.userList[this.$route.params.id].watchedAnimes,
         "name"
       );
-    }
+    },
+    notStartedAnimes: function() {
+      return Vue._.filter(this.$store.state.userList[this.$route.params.id].watchedAnimes, Vue._.matches({ 'watched': 0 }));
+    },
   },
   methods: {
     // See anime details modal
@@ -1249,8 +1388,7 @@ export default {
           });
       }
     }
-  },
-  mounted() {}
+  }
 };
 </script>
 

@@ -8,6 +8,9 @@ import firebase from "firebase";
 import moment from "moment";
 import VueHead from "vue-head";
 import VueLodash from "vue-lodash";
+import VueCarousel from 'vue-carousel';
+
+Vue.use(VueCarousel);
 
 Vue.use(VueLodash);
 

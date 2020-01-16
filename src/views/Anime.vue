@@ -25,15 +25,15 @@
             <img class="anime_img" :src="animeInfos.image_url" alt="" />
             <div style="margin: 0 10px; width: 100%;">
               <h2 style="display: flex; align-items: center; margin-bottom: 0;">
-                <span
-                  ><span style="margin-right: 5px;">{{ animeInfos.title }}</span
-                  ><a-tag v-if="animeInfos.airing === true" color="#ffd500">{{
-                    animeInfos.status
-                  }}</a-tag
-                  ><a-tag v-else color="#008000">{{
-                    animeInfos.status
-                  }}</a-tag></span
-                >
+                <span>
+                  <span style="margin-right: 5px;">{{ animeInfos.title }}</span>
+                  <a-tag v-if="animeInfos.airing === true" color="#ffd500">
+                    {{ animeInfos.status }}
+                  </a-tag>
+                  <a-tag v-else color="#008000">
+                    {{ animeInfos.status }}
+                  </a-tag>
+                </span>
               </h2>
               <p style="margin-top: 5px; margin-bottom: 5px;">
                 {{ animeInfos.title_japanese }}
@@ -183,9 +183,7 @@
         </a-form>
         <div v-if="$store.state.comments['anime' + $route.params.id]">
           <a-comment
-            v-for="(comment, f) in $store.state.comments[
-              'anime' + $route.params.id
-            ]"
+            v-for="(comment, f) in reversedComments"
             :key="f"
           >
             <template slot="actions">
@@ -221,9 +219,9 @@
             </p>
             <a-tooltip
               slot="datetime"
-              :title="moment().format('YYYY-MM-DD HH:mm:ss')"
+              :title="moment(comment.timestamp).format('YYYY-MM-DD HH:mm:ss')"
             >
-              <span>{{ moment().fromNow() }}</span>
+              <span>{{ moment(comment.timestamp).fromNow() }}</span>
             </a-tooltip>
             <a-comment
               style="margin-left: 50px;"
@@ -261,9 +259,9 @@
               </p>
               <a-tooltip
                 slot="datetime"
-                :title="moment().format('YYYY-MM-DD HH:mm:ss')"
+                :title="moment(reply.timestamp).format('YYYY-MM-DD HH:mm:ss')"
               >
-                <span>{{ moment().fromNow() }}</span>
+                <span>{{ moment(reply.timestamp).fromNow() }}</span>
               </a-tooltip>
             </a-comment>
             <a-form v-if="isReplying === true && replyingKey === f" style="margin-left: 50px;" :form="formReply" @submit="addReply">
@@ -324,11 +322,12 @@
 </template>
 
 <script>
+import Vue from "vue";
 import moment from "moment";
-import { mapGetters } from "vuex";
 import firebase from "firebase";
 import { message } from "ant-design-vue";
 const jikanjs = require("jikanjs");
+
 export default {
   name: "anime",
   data() {
@@ -640,20 +639,20 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      comments: "comments"
-    })
+    reversedComments: function() {
+      var array = Vue._.orderBy(this.$store.state.comments['anime' + this.$route.params.id],"timestamp");
+      return Vue._.reverse(array)
+    }
   },
   mounted() {
-    console.log(this.comments);
-    // console.log(this.$store.state.comments['anime' + this.$route.params.id])
+    console.log(this.$store.state.comments)
+    console.log(this.reversedComments);
   },
   beforeCreate() {
     this.form = this.$form.createForm(this, { name: "comment" });
     this.formReply = this.$form.createForm(this, { name: "reply" });
     jikanjs.loadAnime(this.$route.params.id).then(response => {
       this.animeInfos = response;
-      console.log(response);
       this.isLoading = false;
     });
   }

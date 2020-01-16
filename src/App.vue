@@ -269,6 +269,7 @@ export default {
 .anime-card_outside > .anime-card {
   width: 100%;
   padding: 0;
+  margin: 0;
 }
 .anime-card > .ant-card-body {
   padding: 0;
