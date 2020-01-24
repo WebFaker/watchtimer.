@@ -212,12 +212,6 @@
               <a-icon type="user-delete" /> Unfollow
             </a-button>
           </div>
-          <h2 v-if="$store.state.userdb.uid === $route.params.id">
-            My profile
-          </h2>
-          <h2 v-else>
-            {{ $store.state.userList[$route.params.id].displayName }}'s profile
-          </h2>
           <div class="profile_main">
             <div class="profile_main_img-container">
               <div class="profile_main_img-container-inside">
@@ -491,28 +485,24 @@
           class="main-card"
           style="margin-top: 50px;"
         >
-          <h2>
+          <h2 style="display: flex; align-items: center; justify-content: space-between;">
             <span v-if="$route.params.id === $store.state.userdb.uid"
-              >Not started</span
+              >Animes</span
             ><span v-else
               >{{ $store.state.userList[$route.params.id].displayName }}'s
               animes</span
             >
-            ({{
-              Object.keys(
-                notStartedAnimes
-              ).length
-            }})
+            <a-button>See all</a-button>
           </h2>
           <div
             class="main-card_noMargin"
-            style="display: flex; flex-wrap: wrap;"
           >
-            <carousel style="width: 100%;" :per-page="deviceSize" :mouse-drag="true">
-              <slide
+            <carousel :responsive="{0:{items:2},468:{items:3},768:{items:4},1024:{items:5},1440:{items:6}}" :rewind="false" :dots="false" :nav="false" style="width: 100%;">
+              <div
                 class="anime-card_outside"
-                v-for="(anime, f) in notStartedAnimes"
+                v-for="(anime, f) in animes"
                 :key="f"
+                style="width: 100%;"
               >
                 <a-card
                   @click="showDetails(anime.mal_id)"
@@ -589,11 +579,116 @@
                     slot="cover"
                     />
                 </a-card>
-              </slide>
+              </div>
             </carousel>
           </div>
         </a-card>
-        <a-card class="main-card" style="margin-top: 50px;">
+        <a-card
+          v-if="Object.keys(notStartedAnimes).length !== 0"
+          class="main-card"
+          style="margin-top: 10px;"
+        >
+          <h2>
+            <span v-if="$route.params.id === $store.state.userdb.uid"
+              >Movies</span
+            ><span v-else
+              >{{ $store.state.userList[$route.params.id].displayName }}'s
+              movies</span
+            >
+          </h2>
+          <div
+            class="main-card_noMargin"
+          >
+            <carousel :responsive="{0:{items:2},468:{items:3},768:{items:4},1024:{items:5},1440:{items:6}}" :rewind="false" :dots="false" :nav="false" style="width: 100%;">
+              <div
+                class="anime-card_outside"
+                v-for="(movie, f) in movies"
+                :key="f"
+                style="width: 100%;"
+              >
+                <a-card
+                  @click="showDetails(movie.mal_id)"
+                  class="anime-card"
+                  v-if="movie !== 1"
+                  hoverable
+                  style="position: relative; cursor: pointer;"
+                >
+                  <a-button
+                    @click.stop="addAnime(movie)"
+                    size="small"
+                    style="position: absolute; top: 5px; right: 5px;"
+                  >
+                    <a-icon
+                      v-if="
+                        Object.keys(
+                          $store.state.userList[$store.state.userdb.uid]
+                            .watchedAnimes
+                        ).includes('anime' + movie.mal_id) === false &&
+                          isAdding == false
+                      "
+                      style="color: #ffd500; font-size: 20px;"
+                      twoToneColor="ffd500"
+                      type="eye"
+                    />
+                    <a-spin v-if="isAdding == true">
+                      <a-icon
+                        slot="indicator"
+                        type="loading"
+                        style="color: #ffd500; font-size: 16px;"
+                        spin
+                      />
+                    </a-spin>
+                    <a-icon
+                      v-if="
+                        Object.keys(
+                          $store.state.userList[$store.state.userdb.uid]
+                            .watchedAnimes
+                        ).includes('anime' + movie.mal_id) === true &&
+                          isAdding == false
+                      "
+                      style="color: #ffd500; font-size: 20px;"
+                      twoToneColor="ffd500"
+                      type="eye"
+                      theme="filled"
+                    />
+                  </a-button>
+                  <div style="width: 100%; position: absolute; bottom: 0px;">
+                    <a-tag style="margin: 5px">
+                      {{
+                        $store.state.userList[$route.params.id].watchedAnimes[
+                          "anime" + movie.mal_id
+                        ].watched
+                      }}
+                      / {{ movie.episodes || "?" }}
+                    </a-tag>
+                    <a-progress
+                      v-if="movie.airing === false"
+                      style="width: 100%;"
+                      :percent="
+                        ($store.state.userList[$route.params.id].watchedAnimes[
+                          'anime' + movie.mal_id
+                        ].watched /
+                          movie.episodes) *
+                          100
+                      "
+                      :format="() => ''"
+                    />
+                  </div>
+                  <img
+                    class="anime-card_img"
+                    :src="movie.photoUrl"
+                    :alt="movie.name"
+                    slot="cover"
+                    />
+                </a-card>
+              </div>
+            </carousel>
+          </div>
+        </a-card>
+        <a-card
+          class="main-card"
+          style="margin-top: 10px;"
+        >
           <h2>
             <span v-if="$route.params.id === $store.state.userdb.uid"
               >My animes</span
@@ -835,13 +930,16 @@
 
 <script>
 import Vue from "vue";
+import carousel from 'vue-owl-carousel'
 import firebase from "firebase";
+import moment from "moment";
 import { message } from "ant-design-vue";
 const jikanjs = require("jikanjs");
 import countries from "@/json/countries.json";
 
 export default {
   name: "Profile",
+  components: { carousel },
   data() {
     return {
       deviceSize: '',
@@ -919,7 +1017,7 @@ export default {
     }
   },
   mounted() {
-    console.log(this.notStartedAnimes)
+    console.log(this.notStartedAnimes);
     if (window.innerWidth > 1440) {
       this.deviceSize = 6
     } else if (window.innerWidth > 1024) {
@@ -962,6 +1060,12 @@ export default {
     notStartedAnimes: function() {
       return Vue._.filter(this.$store.state.userList[this.$route.params.id].watchedAnimes, Vue._.matches({ 'watched': 0 }));
     },
+    movies() {
+      return Vue._.orderBy((((Vue._.filter(this.$store.state.userList[this.$route.params.id].watchedAnimes, Vue._.matches({ 'type': 'Movie' }))).slice(0, 20))), 'lastSeen').reverse();
+    },
+    animes() {
+      return Vue._.orderBy((((Vue._.filter(this.$store.state.userList[this.$route.params.id].watchedAnimes, Vue._.matches({ 'type': 'TV' }))).slice(0, 20))), 'lastSeen').reverse();
+    }
   },
   methods: {
     // See anime details modal
@@ -1003,6 +1107,7 @@ export default {
               this.detailsModal.mal_id
           )
           .update({
+            lastSeen: moment().format(),
             watched: Number(value)
           });
       } else {
@@ -1025,6 +1130,7 @@ export default {
               value.mal_id
           )
           .update({
+            lastSeen: moment().format(),
             watched:
               this.$store.state.userList[this.$store.state.userdb.uid]
                 .watchedAnimes["anime" + value.mal_id].watched + 1
@@ -1054,6 +1160,7 @@ export default {
               value.mal_id
           )
           .update({
+            lastSeen: moment().format(),
             watched: (this.$store.state.userList[
               this.$store.state.userdb.uid
             ].watchedAnimes["anime" + value.mal_id].watched -= 1)
@@ -1087,6 +1194,7 @@ export default {
       ) {
         this.isAdding = true;
         jikanjs.loadAnime(value.mal_id).then(response => {
+          console.log(response)
           let user = firebase.auth().currentUser;
           var title = response.title;
           firebase
@@ -1099,6 +1207,9 @@ export default {
                 response.mal_id
             )
             .update({
+              stopWatch: false,
+              lastSeen: moment().format(),
+              type: response.type,
               airing: response.airing,
               name: response.title,
               episodes: response.episodes,
@@ -1157,6 +1268,9 @@ export default {
                 response.mal_id
             )
             .update({
+              stopWatch: false,
+              lastSeen: moment().format(),
+              type: response.type,
               airing: response.airing,
               name: response.title,
               episodes: response.episodes,
@@ -1193,6 +1307,7 @@ export default {
                 response.mal_id
             )
             .update({
+              lastSeen: moment().format(),
               watched: response.episodes
             })
             .then(function() {
@@ -1214,6 +1329,7 @@ export default {
               value.mal_id
           )
           .update({
+            lastSeen: moment().format(),
             watched: 0
           })
           .then(function() {

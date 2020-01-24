@@ -523,6 +523,7 @@
 <script>
 import Vue from "vue";
 const jikanjs = require("jikanjs");
+import moment from "moment";
 import firebase from "firebase";
 import { message } from "ant-design-vue";
 
@@ -612,6 +613,9 @@ export default {
                 response.mal_id
             )
             .update({
+              stopWatch: false,
+              lastSeen: moment().format(),
+              type: response.type,
               airing: response.airing,
               name: response.title,
               episodes: response.episodes,
@@ -667,6 +671,9 @@ export default {
                 response.mal_id
             )
             .update({
+              stopWatch: false,
+              lastSeen: moment().format(),
+              type: response.type,
               airing: response.airing,
               name: response.title,
               episodes: response.episodes,
@@ -703,6 +710,7 @@ export default {
                 response.mal_id
             )
             .update({
+              lastSeen: moment().format(),
               watched: response.episodes
             })
             .then(function() {
@@ -724,6 +732,7 @@ export default {
               value.mal_id
           )
           .update({
+            lastSeen: moment().format(),
             watched: 0
           })
           .then(function() {
