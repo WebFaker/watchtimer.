@@ -485,7 +485,9 @@
           class="main-card"
           style="margin-top: 50px;"
         >
-          <h2 style="display: flex; align-items: center; justify-content: space-between;">
+          <h2
+            style="display: flex; align-items: center; justify-content: space-between;"
+          >
             <span v-if="$route.params.id === $store.state.userdb.uid"
               >Animes</span
             ><span v-else
@@ -495,92 +497,86 @@
             <a-button>See all</a-button>
           </h2>
           <div
+            id="card"
             class="main-card_noMargin"
+            style="display: flex; flex-wrap: nowrap; overflow-x: auto;"
           >
-            <carousel :responsive="{0:{items:2},468:{items:3},768:{items:4},1024:{items:5},1440:{items:6}}" :rewind="false" :dots="false" :nav="false" style="width: 100%;">
-              <div
-                class="anime-card_outside"
-                v-for="(anime, f) in animes"
-                :key="f"
-                style="width: 100%;"
+            <a-card
+              @click="showDetails(anime.mal_id)"
+              class="anime-card"
+              hoverable
+              v-for="(anime, f) in animes"
+              :key="f"
+              style="flex: 0 0 auto; width: 155px; position: relative; cursor: pointer;"
+            >
+              <a-button
+                @click.stop="addAnime(anime)"
+                size="small"
+                style="position: absolute; top: 5px; right: 5px;"
               >
-                <a-card
-                  @click="showDetails(anime.mal_id)"
-                  class="anime-card"
-                  v-if="anime !== 1"
-                  hoverable
-                  style="position: relative; cursor: pointer;"
-                >
-                  <a-button
-                    @click.stop="addAnime(anime)"
-                    size="small"
-                    style="position: absolute; top: 5px; right: 5px;"
-                  >
-                    <a-icon
-                      v-if="
-                        Object.keys(
-                          $store.state.userList[$store.state.userdb.uid]
-                            .watchedAnimes
-                        ).includes('anime' + anime.mal_id) === false &&
-                          isAdding == false
-                      "
-                      style="color: #ffd500; font-size: 20px;"
-                      twoToneColor="ffd500"
-                      type="eye"
-                    />
-                    <a-spin v-if="isAdding == true">
-                      <a-icon
-                        slot="indicator"
-                        type="loading"
-                        style="color: #ffd500; font-size: 16px;"
-                        spin
-                      />
-                    </a-spin>
-                    <a-icon
-                      v-if="
-                        Object.keys(
-                          $store.state.userList[$store.state.userdb.uid]
-                            .watchedAnimes
-                        ).includes('anime' + anime.mal_id) === true &&
-                          isAdding == false
-                      "
-                      style="color: #ffd500; font-size: 20px;"
-                      twoToneColor="ffd500"
-                      type="eye"
-                      theme="filled"
-                    />
-                  </a-button>
-                  <div style="width: 100%; position: absolute; bottom: 0px;">
-                    <a-tag style="margin: 5px">
-                      {{
-                        $store.state.userList[$route.params.id].watchedAnimes[
-                          "anime" + anime.mal_id
-                        ].watched
-                      }}
-                      / {{ anime.episodes || "?" }}
-                    </a-tag>
-                    <a-progress
-                      v-if="anime.airing === false"
-                      style="width: 100%;"
-                      :percent="
-                        ($store.state.userList[$route.params.id].watchedAnimes[
-                          'anime' + anime.mal_id
-                        ].watched /
-                          anime.episodes) *
-                          100
-                      "
-                      :format="() => ''"
-                    />
-                  </div>
-                  <img
-                    class="anime-card_img"
-                    :src="anime.photoUrl"
-                    :alt="anime.name"
-                    slot="cover"
-                    />
-                </a-card>
+                <a-icon
+                  v-if="
+                    Object.keys(
+                      $store.state.userList[$store.state.userdb.uid]
+                        .watchedAnimes
+                    ).includes('anime' + anime.mal_id) === false &&
+                      isAdding == false
+                  "
+                  style="color: #ffd500; font-size: 20px;"
+                  twoToneColor="ffd500"
+                  type="eye"
+                />
+                <a-spin v-if="isAdding == true">
+                  <a-icon
+                    slot="indicator"
+                    type="loading"
+                    style="color: #ffd500; font-size: 16px;"
+                    spin
+                  />
+                </a-spin>
+                <a-icon
+                  v-if="
+                    Object.keys(
+                      $store.state.userList[$store.state.userdb.uid]
+                        .watchedAnimes
+                    ).includes('anime' + anime.mal_id) === true &&
+                      isAdding == false
+                  "
+                  style="color: #ffd500; font-size: 20px;"
+                  twoToneColor="ffd500"
+                  type="eye"
+                  theme="filled"
+                />
+              </a-button>
+              <div style="width: 100%; position: absolute; bottom: 0px;">
+                <a-tag style="margin: 5px">
+                  {{
+                    $store.state.userList[$route.params.id].watchedAnimes[
+                      "anime" + anime.mal_id
+                    ].watched
+                  }}
+                  / {{ anime.episodes || "?" }}
+                </a-tag>
+                <a-progress
+                  v-if="anime.airing === false"
+                  style="width: 100%;"
+                  :percent="
+                    ($store.state.userList[$route.params.id].watchedAnimes[
+                      'anime' + anime.mal_id
+                    ].watched /
+                      anime.episodes) *
+                      100
+                  "
+                  :format="() => ''"
+                />
               </div>
-            </carousel>
+              <img
+                class="anime-card_img"
+                :src="anime.photoUrl"
+                :alt="anime.name"
+                slot="cover"
+              />
+            </a-card>
           </div>
         </a-card>
         <a-card
@@ -598,97 +594,87 @@
           </h2>
           <div
             class="main-card_noMargin"
+            style="display: flex; flex-wrap: nowrap; overflow-x: auto;"
           >
-            <carousel :responsive="{0:{items:2},468:{items:3},768:{items:4},1024:{items:5},1440:{items:6}}" :rewind="false" :dots="false" :nav="false" style="width: 100%;">
-              <div
-                class="anime-card_outside"
-                v-for="(movie, f) in movies"
-                :key="f"
-                style="width: 100%;"
+            <a-card
+              @click="showDetails(anime.mal_id)"
+              class="anime-card"
+              hoverable
+              v-for="(anime, f) in movies"
+              :key="f"
+              style="flex: 0 0 auto; width: 155px; position: relative; cursor: pointer;"
+            >
+              <a-button
+                @click.stop="addAnime(anime)"
+                size="small"
+                style="position: absolute; top: 5px; right: 5px;"
               >
-                <a-card
-                  @click="showDetails(movie.mal_id)"
-                  class="anime-card"
-                  v-if="movie !== 1"
-                  hoverable
-                  style="position: relative; cursor: pointer;"
-                >
-                  <a-button
-                    @click.stop="addAnime(movie)"
-                    size="small"
-                    style="position: absolute; top: 5px; right: 5px;"
-                  >
-                    <a-icon
-                      v-if="
-                        Object.keys(
-                          $store.state.userList[$store.state.userdb.uid]
-                            .watchedAnimes
-                        ).includes('anime' + movie.mal_id) === false &&
-                          isAdding == false
-                      "
-                      style="color: #ffd500; font-size: 20px;"
-                      twoToneColor="ffd500"
-                      type="eye"
-                    />
-                    <a-spin v-if="isAdding == true">
-                      <a-icon
-                        slot="indicator"
-                        type="loading"
-                        style="color: #ffd500; font-size: 16px;"
-                        spin
-                      />
-                    </a-spin>
-                    <a-icon
-                      v-if="
-                        Object.keys(
-                          $store.state.userList[$store.state.userdb.uid]
-                            .watchedAnimes
-                        ).includes('anime' + movie.mal_id) === true &&
-                          isAdding == false
-                      "
-                      style="color: #ffd500; font-size: 20px;"
-                      twoToneColor="ffd500"
-                      type="eye"
-                      theme="filled"
-                    />
-                  </a-button>
-                  <div style="width: 100%; position: absolute; bottom: 0px;">
-                    <a-tag style="margin: 5px">
-                      {{
-                        $store.state.userList[$route.params.id].watchedAnimes[
-                          "anime" + movie.mal_id
-                        ].watched
-                      }}
-                      / {{ movie.episodes || "?" }}
-                    </a-tag>
-                    <a-progress
-                      v-if="movie.airing === false"
-                      style="width: 100%;"
-                      :percent="
-                        ($store.state.userList[$route.params.id].watchedAnimes[
-                          'anime' + movie.mal_id
-                        ].watched /
-                          movie.episodes) *
-                          100
-                      "
-                      :format="() => ''"
-                    />
-                  </div>
-                  <img
-                    class="anime-card_img"
-                    :src="movie.photoUrl"
-                    :alt="movie.name"
-                    slot="cover"
-                    />
-                </a-card>
+                <a-icon
+                  v-if="
+                    Object.keys(
+                      $store.state.userList[$store.state.userdb.uid]
+                        .watchedAnimes
+                    ).includes('anime' + anime.mal_id) === false &&
+                      isAdding == false
+                  "
+                  style="color: #ffd500; font-size: 20px;"
+                  twoToneColor="ffd500"
+                  type="eye"
+                />
+                <a-spin v-if="isAdding == true">
+                  <a-icon
+                    slot="indicator"
+                    type="loading"
+                    style="color: #ffd500; font-size: 16px;"
+                    spin
+                  />
+                </a-spin>
+                <a-icon
+                  v-if="
+                    Object.keys(
+                      $store.state.userList[$store.state.userdb.uid]
+                        .watchedAnimes
+                    ).includes('anime' + anime.mal_id) === true &&
+                      isAdding == false
+                  "
+                  style="color: #ffd500; font-size: 20px;"
+                  twoToneColor="ffd500"
+                  type="eye"
+                  theme="filled"
+                />
+              </a-button>
+              <div style="width: 100%; position: absolute; bottom: 0px;">
+                <a-tag style="margin: 5px">
+                  {{
+                    $store.state.userList[$route.params.id].watchedAnimes[
+                      "anime" + anime.mal_id
+                    ].watched
+                  }}
+                  / {{ anime.episodes || "?" }}
+                </a-tag>
+                <a-progress
+                  v-if="anime.airing === false"
+                  style="width: 100%;"
+                  :percent="
+                    ($store.state.userList[$route.params.id].watchedAnimes[
+                      'anime' + anime.mal_id
+                    ].watched /
+                      anime.episodes) *
+                      100
+                  "
+                  :format="() => ''"
+                />
               </div>
-            </carousel>
+              <img
+                class="anime-card_img"
+                :src="anime.photoUrl"
+                :alt="anime.name"
+                slot="cover"
+              />
+            </a-card>
           </div>
         </a-card>
-        <a-card
-          class="main-card"
-          style="margin-top: 10px;"
-        >
+        <a-card class="main-card" style="margin-top: 10px;">
           <h2>
             <span v-if="$route.params.id === $store.state.userdb.uid"
               >My animes</span
@@ -697,9 +683,8 @@
               animes</span
             >
             ({{
-              Object.keys(
-                $store.state.userList[$route.params.id].watchedAnimes
-              ).length - 1
+              Object.keys($store.state.userList[$route.params.id].watchedAnimes)
+                .length - 1
             }})
           </h2>
           <div
@@ -930,7 +915,6 @@
 
 <script>
 import Vue from "vue";
-import carousel from 'vue-owl-carousel'
 import firebase from "firebase";
 import moment from "moment";
 import { message } from "ant-design-vue";
@@ -939,10 +923,9 @@ import countries from "@/json/countries.json";
 
 export default {
   name: "Profile",
-  components: { carousel },
   data() {
     return {
-      deviceSize: '',
+      deviceSize: "",
 
       headers: {
         authorization: "authorization-text"
@@ -1019,29 +1002,29 @@ export default {
   mounted() {
     console.log(this.notStartedAnimes);
     if (window.innerWidth > 1440) {
-      this.deviceSize = 6
+      this.deviceSize = 6;
     } else if (window.innerWidth > 1024) {
-      this.deviceSize = 5
+      this.deviceSize = 5;
     } else if (window.innerWidth > 768) {
-      this.deviceSize = 4
+      this.deviceSize = 4;
     } else if (window.innerWidth > 468) {
-      this.deviceSize = 3
+      this.deviceSize = 3;
     } else {
-      this.deviceSize = 2
+      this.deviceSize = 2;
     }
     window.addEventListener("resize", () => {
       if (window.innerWidth > 1440) {
-        this.deviceSize = 6
+        this.deviceSize = 6;
       } else if (window.innerWidth > 1024) {
-        this.deviceSize = 5
+        this.deviceSize = 5;
       } else if (window.innerWidth > 768) {
-        this.deviceSize = 4
+        this.deviceSize = 4;
       } else if (window.innerWidth > 468) {
-        this.deviceSize = 3
+        this.deviceSize = 3;
       } else {
-        this.deviceSize = 2
+        this.deviceSize = 2;
       }
-    })
+    });
   },
   beforeCreate() {
     this.imageData = null;
@@ -1058,13 +1041,32 @@ export default {
       );
     },
     notStartedAnimes: function() {
-      return Vue._.filter(this.$store.state.userList[this.$route.params.id].watchedAnimes, Vue._.matches({ 'watched': 0 }));
+      return Vue._.filter(
+        this.$store.state.userList[this.$route.params.id].watchedAnimes,
+        Vue._.matches({ watched: 0 })
+      );
     },
     movies() {
-      return Vue._.orderBy((((Vue._.filter(this.$store.state.userList[this.$route.params.id].watchedAnimes, Vue._.matches({ 'type': 'Movie' }))).slice(0, 20))), 'lastSeen').reverse();
+      return Vue._.orderBy(
+        Vue._.filter(
+          this.$store.state.userList[this.$route.params.id].watchedAnimes,
+          { type: "Movie" }
+        ),
+        "lastSeen"
+      )
+        .reverse()
+        .slice(0, 20);
     },
     animes() {
-      return Vue._.orderBy((((Vue._.filter(this.$store.state.userList[this.$route.params.id].watchedAnimes, Vue._.matches({ 'type': 'TV' }))).slice(0, 20))), 'lastSeen').reverse();
+      return Vue._.orderBy(
+        Vue._.filter(
+          this.$store.state.userList[this.$route.params.id].watchedAnimes,
+          { type: "TV" }
+        ),
+        "lastSeen"
+      )
+        .reverse()
+        .slice(0, 20);
     }
   },
   methods: {
@@ -1194,7 +1196,7 @@ export default {
       ) {
         this.isAdding = true;
         jikanjs.loadAnime(value.mal_id).then(response => {
-          console.log(response)
+          console.log(response);
           let user = firebase.auth().currentUser;
           var title = response.title;
           firebase

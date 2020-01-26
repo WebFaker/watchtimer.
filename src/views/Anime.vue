@@ -182,10 +182,7 @@
           </a-form-item>
         </a-form>
         <div v-if="$store.state.comments['anime' + $route.params.id]">
-          <a-comment
-            v-for="(comment, f) in reversedComments"
-            :key="f"
-          >
+          <a-comment v-for="(comment, f) in reversedComments" :key="f">
             <template slot="actions">
               <span>
                 <a-tooltip title="Like">
@@ -204,7 +201,12 @@
                   {{ comment.dislikes }}
                 </span>
               </span>
-              <span @click="toggleReply(f)"><span v-if="isReplying === false">Reply to {{ $store.state.userList[comment.uid].displayName }}</span><span v-else>Cancel replying</span></span>
+              <span @click="toggleReply(f)"
+                ><span v-if="isReplying === false"
+                  >Reply to
+                  {{ $store.state.userList[comment.uid].displayName }}</span
+                ><span v-else>Cancel replying</span></span
+              >
             </template>
             <a slot="author">{{
               $store.state.userList[comment.uid].displayName
@@ -248,7 +250,8 @@
                 </span>
               </template>
               <a slot="author">
-                {{ $store.state.userList[reply.uid].displayName }}</a>
+                {{ $store.state.userList[reply.uid].displayName }}</a
+              >
               <a-avatar
                 :src="$store.state.userList[reply.uid].photoURL"
                 :alt="$store.state.userList[reply.uid].displayName"
@@ -264,7 +267,12 @@
                 <span>{{ moment(reply.timestamp).fromNow() }}</span>
               </a-tooltip>
             </a-comment>
-            <a-form v-if="isReplying === true && replyingKey === f" style="margin-left: 50px;" :form="formReply" @submit="addReply">
+            <a-form
+              v-if="isReplying === true && replyingKey === f"
+              style="margin-left: 50px;"
+              :form="formReply"
+              @submit="addReply"
+            >
               <a-form-item style="margin-bottom: 0;">
                 <a-textarea
                   :autosize="{ minRows: 1 }"
@@ -283,12 +291,12 @@
                 >
                 </a-textarea>
               </a-form-item>
-              <a-form-item v-show="false">
+              <a-form-item v-show="true">
                 <a-input
                   v-decorator="[
                     'replyingKey',
                     {
-                      initialValue: f,
+                      initialValue: comment.key,
                       rules: [
                         {
                           required: false
@@ -393,37 +401,44 @@ export default {
   methods: {
     toggleReply(value) {
       if (this.isReplying === true) {
-        this.replyingKey = ""
-        this.isReplying = false
+        this.replyingKey = "";
+        this.isReplying = false;
       } else {
-        this.replyingKey = value
-        this.isReplying = true
+        this.replyingKey = value;
+        this.isReplying = true;
       }
     },
     // addReply(e) {
     //   e.preventDefault();
     //   this.formReply.validateFields((err, values) => {
+    //     console.log(values);
     //     if (this.$store.state.comments["anime" + this.$route.params.id]) {
-    //     this.currentReply =
-    //     Object.keys(
-    //       this.$store.state.comments["anime" + this.$route.params.id][values.replyingKey].replies
-    //     ).length + 1;
-    //   } else {
-    //     this.currentReply = 1;
-    //   }
-    //     console.log(values)
+    //       this.currentReply =
+    //         Object.keys(
+    //           this.$store.state.comments["anime" + this.$route.params.id][
+    //             values.replyingKey
+    //           ].replies
+    //         ).length + 1;
+    //     } else {
+    //       this.currentReply = 1;
+    //     }
     //     if (this.$store.state.userdb.uid && !err) {
     //       var timestamp = moment().format();
     //       firebase
     //         .database()
     //         .ref(
-    //           "comments/" + "anime" +
-    //             this.$route.params.id + "/" +
-    //             values.replyingKey + "/" +
+    //           "comments/" +
+    //             "anime" +
+    //             this.$route.params.id +
+    //             "/comment" +
+    //             values.replyingKey +
+    //             "/" +
     //             "/replies" +
-    //             "/reply" + this.currentReply
+    //             "/reply" +
+    //             this.currentReply
     //         )
     //         .update({
+    //           key: this.currentComment,
     //           dislikes: 0,
     //           likes: 0,
     //           message: values.reply,
@@ -471,6 +486,7 @@ export default {
                 this.currentComment
             )
             .update({
+              key: this.currentComment,
               dislikes: 0,
               likes: 0,
               message: values.comment,
@@ -648,12 +664,15 @@ export default {
   },
   computed: {
     reversedComments: function() {
-      var array = Vue._.orderBy(this.$store.state.comments['anime' + this.$route.params.id],"timestamp");
-      return Vue._.reverse(array)
+      var array = Vue._.orderBy(
+        this.$store.state.comments["anime" + this.$route.params.id],
+        "timestamp"
+      );
+      return Vue._.reverse(array);
     }
   },
   mounted() {
-    console.log(this.$store.state.comments)
+    console.log(this.$store.state.comments);
     console.log(this.reversedComments);
   },
   beforeCreate() {
