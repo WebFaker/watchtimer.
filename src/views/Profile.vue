@@ -483,9 +483,7 @@
         <div class="resume main-card" style="margin-top: 50px; display: flex;">
           <a-card style="width: calc(100% / 3); text-align: center;">
             <span style="font-size: 36px;">
-              {{
-                episodesWatched
-              }}
+              {{ episodesWatched }}
             </span>
             <br />
             episodes watched
@@ -501,10 +499,8 @@
                     anime.type === "ONA" ||
                     anime.type === "OVA"
                 ).length
-              }}
-            </span>
-            <br />
-            animes watched
+              }}</span
+            ><br />animes watched
           </a-card>
           <a-card style="width: calc(100% / 3); text-align: center;">
             <span style="font-size: 36px;">
@@ -513,10 +509,8 @@
                   $store.state.userList[$route.params.id].watchedAnimes,
                   { type: "Movie" }
                 ).length
-              }}
-            </span>
-            <br />
-            movies watched
+              }}</span
+            ><br />movies watched
           </a-card>
         </div>
         <a-card
