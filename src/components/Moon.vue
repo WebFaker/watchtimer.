@@ -1,6 +1,6 @@
 <template>
   <svg
-    style="fill: gold; width: 25px; height: 25px;"
+    :style="moonStyle"
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -17,7 +17,17 @@
 </template>
 
 <script>
-export default {};
+export default {
+  data() {
+    return {
+      moonStyle: {
+        fill: "gold",
+        width: "25px",
+        height: "25px"
+      }
+    };
+  }
+};
 </script>
 
 <style></style>

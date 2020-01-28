@@ -201,12 +201,15 @@
                   {{ comment.dislikes }}
                 </span>
               </span>
-              <span @click="toggleReply(f)"
-                ><span v-if="isReplying === false"
+              <span @click="toggleReply(f)">
+                <span v-if="isReplying === true && replyingKey === f"
+                  >Cancel replying</span
+                >
+                <span v-else
                   >Reply to
                   {{ $store.state.userList[comment.uid].displayName }}</span
-                ><span v-else>Cancel replying</span></span
-              >
+                >
+              </span>
             </template>
             <a slot="author">{{
               $store.state.userList[comment.uid].displayName
@@ -291,7 +294,7 @@
                 >
                 </a-textarea>
               </a-form-item>
-              <a-form-item v-show="true">
+              <a-form-item v-show="false">
                 <a-input
                   v-decorator="[
                     'replyingKey',
@@ -408,61 +411,47 @@ export default {
         this.isReplying = true;
       }
     },
-    // addReply(e) {
-    //   e.preventDefault();
-    //   this.formReply.validateFields((err, values) => {
-    //     console.log(values);
-    //     if (this.$store.state.comments["anime" + this.$route.params.id]) {
-    //       this.currentReply =
-    //         Object.keys(
-    //           this.$store.state.comments["anime" + this.$route.params.id][
-    //             values.replyingKey
-    //           ].replies
-    //         ).length + 1;
-    //     } else {
-    //       this.currentReply = 1;
-    //     }
-    //     if (this.$store.state.userdb.uid && !err) {
-    //       var timestamp = moment().format();
-    //       firebase
-    //         .database()
-    //         .ref(
-    //           "comments/" +
-    //             "anime" +
-    //             this.$route.params.id +
-    //             "/comment" +
-    //             values.replyingKey +
-    //             "/" +
-    //             "/replies" +
-    //             "/reply" +
-    //             this.currentReply
-    //         )
-    //         .update({
-    //           key: this.currentComment,
-    //           dislikes: 0,
-    //           likes: 0,
-    //           message: values.reply,
-    //           timestamp: timestamp,
-    //           uid: this.$store.state.userdb.uid
-    //         })
-    //         .then(function() {
-    //           message.success("Reply added !");
-    //         });
-    //       console.log("Received values of form: ", values);
-    //     } else if (!err) {
-    //       this.$confirm({
-    //         title: "You can't reply yet !",
-    //         content: (
-    //           <div>You need to be logged in or registered to reply.</div>
-    //         ),
-    //         okText: "Login / Register",
-    //         onOk() {
-    //           this.$router.push("/login");
-    //         }
-    //       });
-    //     }
-    //   });
-    // },
+    addReply(e) {
+      e.preventDefault();
+      this.formReply.validateFields((err, values) => {
+        if (this.$store.state.userdb.uid && !err) {
+          console.log(this.currentReply);
+          var timestamp = moment().format();
+          firebase
+            .database()
+            .ref(
+              "comments/" +
+                "anime" +
+                this.$route.params.id +
+                "/comment" +
+                values.replyingKey +
+                "/replies"
+            )
+            .push({
+              dislikes: 0,
+              likes: 0,
+              message: values.reply,
+              timestamp: timestamp,
+              uid: this.$store.state.userdb.uid
+            })
+            .then(function() {
+              message.success("Reply added !");
+            });
+          console.log("Received values of form: ", values);
+        } else if (!err) {
+          this.$confirm({
+            title: "You can't reply yet !",
+            content: (
+              <div>You need to be logged in or registered to reply.</div>
+            ),
+            okText: "Login / Register",
+            onOk() {
+              this.$router.push("/login");
+            }
+          });
+        }
+      });
+    },
     addComment(e) {
       e.preventDefault();
       if (this.$store.state.comments["anime" + this.$route.params.id]) {
@@ -486,15 +475,17 @@ export default {
                 this.currentComment
             )
             .update({
-              key: this.currentComment,
+              key: Number(this.currentComment),
               dislikes: 0,
               likes: 0,
+              replies: "",
               message: values.comment,
               timestamp: timestamp,
               uid: this.$store.state.userdb.uid
             })
             .then(function() {
               message.success("Comment added !");
+              this.form.resetFields();
             });
           console.log("Received values of form: ", values);
         } else if (!err) {

@@ -867,14 +867,21 @@ export default {
         (this.show = false),
         (this.isShowingTop = false),
         (this.isLoading = true),
-        jikanjs.search(this.searchType, value).then(response => {
-          console.log(response); // eslint-disable-line
-          response.results.forEach(element => {
-            this.animeResults = response.results;
+        jikanjs
+          .search(this.searchType, value)
+          .then(response => {
+            console.log(response); // eslint-disable-line
+            response.results.forEach(element => {
+              this.animeResults = response.results;
+            });
+            this.show = true;
+            this.isLoading = false;
+          })
+          .catch(err => {
+            message.error(err.toString()); // in case a error happens
+            this.show = true;
+            this.isLoading = false;
           });
-          this.show = true;
-          this.isLoading = false;
-        });
     }
   }
 };
@@ -912,6 +919,12 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  background: white;
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  padding: 5px;
+  border-radius: 100%;
 }
 
 @-webkit-keyframes scale-up-center {
@@ -943,11 +956,16 @@ export default {
   width: 100vw;
   height: 100vh;
   &_img {
+    background: white;
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     width: 50px;
+    height: 50px;
+    object-fit: contain;
+    padding: 5px;
+    border-radius: 100%;
   }
 }
 

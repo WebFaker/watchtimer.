@@ -4,6 +4,7 @@ import Home from "@/views/Home.vue";
 import Anime from "@/views/Anime.vue";
 import Login from "@/views/Login.vue";
 import Profile from "@/views/Profile.vue";
+import List from "@/views/List.vue";
 import Follows from "@/views/Follows.vue";
 import Users from "@/views/Users.vue";
 import Settings from "@/views/Settings.vue";
@@ -44,6 +45,11 @@ const routes = [
     path: "/profile/:id",
     name: "profile",
     component: Profile
+  },
+  {
+    path: "/profile/:id/:list",
+    name: "list",
+    component: List
   },
   {
     path: "/profile/:id/:follow",

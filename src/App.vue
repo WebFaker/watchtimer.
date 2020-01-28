@@ -76,7 +76,20 @@
             textAlign: 'right'
           }"
         >
-          <Moon />
+          <div
+            style="width: 25px; height: 25px;"
+            v-if="theme === 'light'"
+            @click="loadDarkTheme"
+          >
+            <Moon />
+          </div>
+          <div
+            style="width: 25px; height: 25px;"
+            v-else
+            @click="loadLightTheme"
+          >
+            <Sun />
+          </div>
           <a-button
             v-if="isLogged === 'true'"
             @click="signOut"
@@ -94,14 +107,32 @@
     </div>
     <!-- !Burger Menu -->
     <div id="nav">
-      <router-link style="color: #000 !important;" to="/">
-        <img
-          style="margin-right: 10px; width: 20px"
-          src="@/assets/eye.png"
-          alt="Logo"
-        /><span style="font-weight: lighter;">Watchtimer.</span
-        ><a-tag style="margin-left: 5px;">v0.1</a-tag>
-      </router-link>
+      <div style="display: flex; align-items: center;">
+        <router-link style="color: var(--main-font-color) !important;" to="/">
+          <img
+            style="margin-right: 10px; width: 20px"
+            src="@/assets/eye.png"
+            alt="Logo"
+          /><span style="font-weight: lighter;">Watchtimer.</span
+          ><a-tag style="margin-left: 5px;">v0.1</a-tag>
+        </router-link>
+        <div
+          class="desktop"
+          style="cursor: pointer; width: 25px; height: 25px; margin-left: 5px;"
+          v-if="theme === 'light'"
+          @click="loadDarkTheme"
+        >
+          <Moon />
+        </div>
+        <div
+          class="desktop"
+          style="cursor: pointer; width: 25px; height: 25px; margin-left: 5px;"
+          v-else
+          @click="loadLightTheme"
+        >
+          <Sun />
+        </div>
+      </div>
       <div style="display: flex; align-items: center;">
         <p style="margin: 0;" class="mobile" type="primary" @click="showDrawer">
           Menu
@@ -157,23 +188,30 @@
 import firebase from "firebase";
 import { message } from "ant-design-vue";
 import Moon from "@/components/Moon.vue";
+import Sun from "@/components/Sun.vue";
 
 export default {
   name: "App",
   components: {
-    Moon
+    Moon,
+    Sun
   },
   data() {
     return {
       // Burger Menu
       visible: false,
 
+      theme: localStorage.theme,
+
       isLogged: localStorage.isLogged
     };
   },
   beforeCreate() {
-    if (localStorage.isLogged === null) {
+    if (!localStorage.isLogged) {
       localStorage.isLogged = false;
+    }
+    if (!localStorage.theme) {
+      localStorage.theme = "light";
     }
   },
   mounted() {
@@ -185,8 +223,69 @@ export default {
     this.$store.dispatch("updateComments");
     this.$store.dispatch("updateUserList");
     this.fullLoad = true;
+    if (localStorage.theme === "light") {
+      this.loadLightTheme();
+    } else if (localStorage.theme === "dark") {
+      this.loadDarkTheme();
+    }
   },
   methods: {
+    loadDarkTheme() {
+      console.log("Click !");
+      if (localStorage.theme === "light") {
+        localStorage.theme = "dark";
+        this.theme = "dark";
+      }
+      document.documentElement.style.setProperty("--main-bg-color", "#1b1b1b");
+      document.documentElement.style.setProperty(
+        "--main-bg-component-color",
+        "#2b2b2b"
+      );
+      document.documentElement.style.setProperty(
+        "--main-opacity-color",
+        "rgba(255, 255, 255, 0.75)"
+      );
+      document.documentElement.style.setProperty(
+        "--main-opacity-more-color",
+        "rgba(255, 255, 255, 0.45)"
+      );
+      document.documentElement.style.setProperty(
+        "--main-font-button-disabled-color",
+        "rgba(255, 255, 255, 0.25)"
+      );
+      document.documentElement.style.setProperty(
+        "--main-font-color",
+        "#ffffff"
+      );
+    },
+    loadLightTheme() {
+      console.log("Click !");
+      if (localStorage.theme === "dark") {
+        localStorage.theme = "light";
+        this.theme = "light";
+      }
+      document.documentElement.style.setProperty("--main-bg-color", "#ffffff");
+      document.documentElement.style.setProperty(
+        "--main-bg-component-color",
+        "#fafafa"
+      );
+      document.documentElement.style.setProperty(
+        "--main-opacity-color",
+        "rgba(0, 0, 0, 0.75)"
+      );
+      document.documentElement.style.setProperty(
+        "--main-opacity-more-color",
+        "rgba(0, 0, 0, 0.45)"
+      );
+      document.documentElement.style.setProperty(
+        "--main-font-button-disabled-color",
+        "rgba(0, 0, 0, 0.25)"
+      );
+      document.documentElement.style.setProperty(
+        "--main-font-color",
+        "#000000"
+      );
+    },
     signOut() {
       firebase
         .auth()
@@ -211,7 +310,132 @@ export default {
 };
 </script>
 
+<style lang="less">
+@primary-color: #ffd500;
+@normal-color: #d9d9d9;
+@white: var(--main-bg-color);
+@black: var(--main-font-color);
+</style>
+
 <style lang="scss">
+// Light and Dark Theme
+body {
+  // --main-bg-color: #1b1b1b;
+  // --main-bg-component-color: #2b2b2b;
+  // --main-bg-opacity-color: rgba(255, 255, 255, 0.75);
+  // --main-bg-opacity-more-color: rgba(255, 255, 255, 0.45);
+  // --main-font-button-disabled-color: rgba(255, 255, 255, 0.25);
+  // --main-font-color: #fff;
+  background-color: var(--main-bg-color);
+  color: var(--main-font-color);
+}
+
+.ant-dropdown-menu-item:hover,
+.ant-select-dropdown-menu-item-selected,
+.ant-card,
+.ant-card-meta-title,
+.ant-card-meta-description,
+.ant-modal-content,
+.ant-modal-header,
+.ant-modal-title,
+.ant-list-vertical .ant-list-item-meta-title {
+  background-color: var(--main-bg-color) !important;
+  color: var(--main-font-color);
+}
+
+.ant-btn-disabled,
+.ant-btn.disabled,
+.ant-btn[disabled],
+.ant-btn-disabled:hover,
+.ant-btn.disabled:hover,
+.ant-btn[disabled]:hover,
+.ant-btn-disabled:focus,
+.ant-btn.disabled:focus,
+.ant-btn[disabled]:focus,
+.ant-btn-disabled:active,
+.ant-btn.disabled:active,
+.ant-btn[disabled]:active,
+.ant-btn-disabled.active,
+.ant-btn.disabled.active,
+.ant-btn[disabled].active {
+  color: var(--main-font-button-disabled-color);
+  background-color: var(--main-bg-opacity-more-color);
+}
+
+.ant-tooltip-inner {
+  color: var(--main-bg-color);
+  background-color: var(--main-bg-opacity-color);
+}
+
+.ant-message-notice-content {
+  background: var(--main-bg-component-color);
+  color: var(--main-font-color);
+}
+
+.ant-tooltip-placement-top .ant-tooltip-arrow,
+.ant-tooltip-placement-topLeft .ant-tooltip-arrow,
+.ant-tooltip-placement-topRight .ant-tooltip-arrow {
+  border-top-color: var(--main-bg-opacity-color);
+}
+
+.icon-wrapper .anticon {
+  color: var(--main-font-color) !important;
+}
+
+.ant-collapse-borderless,
+.ant-collapse-header {
+  background: var(--main-bg-color);
+  color: var(--main-font-color) !important;
+}
+
+.ant-collapse > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
+  color: var(--main-font-color) !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+p {
+  color: var(--main-font-color);
+}
+
+.ant-back-top-content {
+  background-color: var(--main-bg-opacity-more-color);
+}
+
+.ant-comment-content-author-name > * {
+  color: var(--main-bg-opacity-color);
+}
+
+.ant-comment-actions > li > span,
+.ant-dropdown-menu-item > a,
+.ant-dropdown-menu-item {
+  color: var(--main-bg-opacity-color);
+}
+
+.ant-card-actions {
+  background: var(--main-bg-component-color);
+}
+
+.ant-input,
+.ant-select-selection,
+.ant-dropdown,
+.ant-dropdown-menu,
+.ant-select-dropdown,
+.ant-select-dropdown-menu-item {
+  color: var(--main-font-color);
+  background: var(--main-bg-component-color);
+}
+
+.ant-select-arrow,
+.ant-input-search-icon {
+  color: var(--main-font-color);
+}
+
+// -----------------------------------------
+
 .ant-avatar > img {
   object-fit: cover;
 }
@@ -363,7 +587,8 @@ export default {
 
 #nav {
   width: 100%;
-  background: white;
+  color: var(--main-font-color);
+  background: var(--main-bg-color);
   border-bottom: 1px solid #e8e8e8;
   z-index: 998;
   position: fixed;
@@ -376,7 +601,7 @@ export default {
   padding: 20px 30px;
 
   a {
-    color: #000000;
+    color: var(--main-font-color);
     transition: 0.3s all;
     &:hover {
       color: #ffd500;

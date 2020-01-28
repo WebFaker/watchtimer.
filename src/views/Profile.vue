@@ -171,14 +171,14 @@
           <div v-if="$store.state.userdb.uid === $route.params.id">
             <a-button
               v-if="!edit"
-              style="position: absolute; top: 24px; right: 32px;"
+              style="position: absolute; top: 24px; right: 32px; z-index: 5;"
               @click="toggleEdit"
             >
               <a-icon type="edit" />
             </a-button>
             <a-button
               v-if="edit"
-              style="position: absolute; top: 24px; right: 32px;"
+              style="position: absolute; top: 24px; right: 32px; z-index: 5;"
               @click="toggleEdit"
             >
               <a-icon type="close" />
@@ -480,6 +480,45 @@
             </div>
           </div>
         </a-card>
+        <div class="resume main-card" style="margin-top: 50px; display: flex;">
+          <a-card style="width: calc(100% / 3); text-align: center;">
+            <span style="font-size: 36px;">
+              {{
+                episodesWatched
+              }}
+            </span>
+            <br />
+            episodes watched
+          </a-card>
+          <a-card style="width: calc(100% / 3); text-align: center;">
+            <span style="font-size: 36px;">
+              {{
+                _.filter(
+                  this.$store.state.userList[this.$route.params.id]
+                    .watchedAnimes,
+                  anime =>
+                    anime.type === "TV" ||
+                    anime.type === "ONA" ||
+                    anime.type === "OVA"
+                ).length
+              }}
+            </span>
+            <br />
+            animes watched
+          </a-card>
+          <a-card style="width: calc(100% / 3); text-align: center;">
+            <span style="font-size: 36px;">
+              {{
+                _.filter(
+                  $store.state.userList[$route.params.id].watchedAnimes,
+                  { type: "Movie" }
+                ).length
+              }}
+            </span>
+            <br />
+            movies watched
+          </a-card>
+        </div>
         <a-card
           v-if="Object.keys(notStartedAnimes).length !== 0"
           class="main-card"
@@ -494,7 +533,9 @@
               >{{ $store.state.userList[$route.params.id].displayName }}'s
               animes</span
             >
-            <a-button>See all</a-button>
+            <a-button @click="$router.push($route.params.id + '/animes')">
+              See all
+            </a-button>
           </h2>
           <div
             id="card"
@@ -672,141 +713,6 @@
                 slot="cover"
               />
             </a-card>
-          </div>
-        </a-card>
-        <a-card class="main-card" style="margin-top: 10px;">
-          <h2>
-            <span v-if="$route.params.id === $store.state.userdb.uid"
-              >My animes</span
-            ><span v-else
-              >{{ $store.state.userList[$route.params.id].displayName }}'s
-              animes</span
-            >
-            ({{
-              Object.keys($store.state.userList[$route.params.id].watchedAnimes)
-                .length - 1
-            }})
-          </h2>
-          <div
-            class="main-card_noMargin"
-            style="display: flex; flex-wrap: wrap;"
-          >
-            <div
-              style="width: 100%;"
-              v-if="
-                Object.keys(
-                  this.$store.state.userList[this.$route.params.id]
-                    .watchedAnimes
-                ).length == 1
-              "
-            >
-              <p>
-                Oops,
-                <span v-if="$route.params.id === $store.state.userdb.uid"
-                  >you have</span
-                ><span v-else
-                  ><span style="font-weight: bold">{{
-                    $store.state.userList[$route.params.id].displayName
-                  }}</span>
-                  has</span
-                >
-                not added any animes yet.
-              </p>
-              <a-button
-                v-if="$route.params.id === $store.state.userdb.uid"
-                @click="$router.push('/')"
-                style="margin-bottom: 1em"
-                type="primary"
-                >Go add some !</a-button
-              >
-              <img
-                style="width: 100%;"
-                src="https://media1.tenor.com/images/1f3e64eb5c24881b3d1b0c8cd54e4555/tenor.gif?itemid=11860845"
-                alt=""
-              />
-            </div>
-            <div
-              class="anime-card_outside"
-              v-else
-              v-for="(anime, f) in orderedWatchedAnimes"
-              :key="f"
-            >
-              <a-card
-                @click="showDetails(anime.mal_id)"
-                class="anime-card"
-                v-if="anime !== 1"
-                hoverable
-                style="position: relative; cursor: pointer;"
-              >
-                <a-button
-                  @click.stop="addAnime(anime)"
-                  size="small"
-                  style="position: absolute; top: 5px; right: 5px;"
-                >
-                  <a-icon
-                    v-if="
-                      Object.keys(
-                        $store.state.userList[$store.state.userdb.uid]
-                          .watchedAnimes
-                      ).includes('anime' + anime.mal_id) === false &&
-                        isAdding == false
-                    "
-                    style="color: #ffd500; font-size: 20px;"
-                    twoToneColor="ffd500"
-                    type="eye"
-                  />
-                  <a-spin v-if="isAdding == true">
-                    <a-icon
-                      slot="indicator"
-                      type="loading"
-                      style="color: #ffd500; font-size: 16px;"
-                      spin
-                    />
-                  </a-spin>
-                  <a-icon
-                    v-if="
-                      Object.keys(
-                        $store.state.userList[$store.state.userdb.uid]
-                          .watchedAnimes
-                      ).includes('anime' + anime.mal_id) === true &&
-                        isAdding == false
-                    "
-                    style="color: #ffd500; font-size: 20px;"
-                    twoToneColor="ffd500"
-                    type="eye"
-                    theme="filled"
-                  />
-                </a-button>
-                <div style="width: 100%; position: absolute; bottom: 0px;">
-                  <a-tag style="margin: 5px">
-                    {{
-                      $store.state.userList[$route.params.id].watchedAnimes[
-                        "anime" + anime.mal_id
-                      ].watched
-                    }}
-                    / {{ anime.episodes || "?" }}
-                  </a-tag>
-                  <a-progress
-                    v-if="anime.airing === false"
-                    style="width: 100%;"
-                    :percent="
-                      ($store.state.userList[$route.params.id].watchedAnimes[
-                        'anime' + anime.mal_id
-                      ].watched /
-                        anime.episodes) *
-                        100
-                    "
-                    :format="() => ''"
-                  />
-                </div>
-                <img
-                  class="anime-card_img"
-                  :src="anime.photoUrl"
-                  :alt="anime.name"
-                  slot="cover"
-                />
-              </a-card>
-            </div>
           </div>
         </a-card>
       </div>
@@ -1000,31 +906,7 @@ export default {
     }
   },
   mounted() {
-    console.log(this.notStartedAnimes);
-    if (window.innerWidth > 1440) {
-      this.deviceSize = 6;
-    } else if (window.innerWidth > 1024) {
-      this.deviceSize = 5;
-    } else if (window.innerWidth > 768) {
-      this.deviceSize = 4;
-    } else if (window.innerWidth > 468) {
-      this.deviceSize = 3;
-    } else {
-      this.deviceSize = 2;
-    }
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 1440) {
-        this.deviceSize = 6;
-      } else if (window.innerWidth > 1024) {
-        this.deviceSize = 5;
-      } else if (window.innerWidth > 768) {
-        this.deviceSize = 4;
-      } else if (window.innerWidth > 468) {
-        this.deviceSize = 3;
-      } else {
-        this.deviceSize = 2;
-      }
-    });
+    console.log("Animes pas commencés : " + this.notStartedAnimes);
   },
   beforeCreate() {
     this.imageData = null;
@@ -1033,12 +915,6 @@ export default {
   computed: {
     orderedCountries: function() {
       return Vue._.orderBy(this.countries);
-    },
-    orderedWatchedAnimes: function() {
-      return Vue._.orderBy(
-        this.$store.state.userList[this.$route.params.id].watchedAnimes,
-        "name"
-      );
     },
     notStartedAnimes: function() {
       return Vue._.filter(
@@ -1061,17 +937,29 @@ export default {
       return Vue._.orderBy(
         Vue._.filter(
           this.$store.state.userList[this.$route.params.id].watchedAnimes,
-          { type: "TV" }
+          anime =>
+            anime.type === "TV" || anime.type === "ONA" || anime.type === "OVA"
         ),
         "lastSeen"
       )
         .reverse()
         .slice(0, 20);
+    },
+    episodesWatched() {
+      var array = Object.values(
+        this.$store.state.userList[this.$route.params.id].watchedAnimes
+      );
+      var episodesTotal = array.reduce(function(prev, cur) {
+        return prev + (cur.watched || 0);
+      }, 0);
+
+      return episodesTotal;
     }
   },
   methods: {
     // See anime details modal
     showDetails(value) {
+      console.log(value);
       this.loading = true;
       this.detailsVisible = true;
       jikanjs.loadAnime(value).then(response => {
@@ -1096,6 +984,7 @@ export default {
               this.detailsModal.mal_id
           )
           .update({
+            lastSeen: moment().format(),
             watched: Number(value)
           });
       } else if (!this.detailsModal.episodes) {
