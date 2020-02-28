@@ -201,8 +201,8 @@
                   {{ comment.dislikes }}
                 </span>
               </span>
-              <span @click="toggleReply(f)">
-                <span v-if="isReplying === true && replyingKey === f"
+              <span @click="toggleReply(comment.key)">
+                <span v-if="isReplying === true && replyingKey === comment.key"
                   >Cancel replying</span
                 >
                 <span v-else
@@ -251,6 +251,7 @@
                     {{ reply.dislikes }}
                   </span>
                 </span>
+                <a-icon type="delete" @click="deleteEntry(reply)" />
               </template>
               <a slot="author">
                 {{ $store.state.userList[reply.uid].displayName }}</a
@@ -411,6 +412,14 @@ export default {
         this.isReplying = true;
       }
     },
+    deleteEntry(value) {
+      firebase
+        .database()
+        .ref("comments")
+        .child(value)
+        .remove();
+      message.loading("Comment deleted.");
+    },
     addReply(e) {
       e.preventDefault();
       this.formReply.validateFields((err, values) => {
@@ -436,6 +445,7 @@ export default {
             })
             .then(function() {
               message.success("Reply added !");
+              this.formReply.resetFields();
             });
           console.log("Received values of form: ", values);
         } else if (!err) {

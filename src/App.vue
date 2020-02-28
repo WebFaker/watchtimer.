@@ -44,6 +44,11 @@
             ></a-menu-item
           >
           <a-menu-item key="4" @click="onClose"
+            ><router-link to="/notifications"
+              ><a-icon type="bell" /> Notifications</router-link
+            ></a-menu-item
+          >
+          <a-menu-item key="5" @click="onClose"
             ><router-link to="/settings"
               ><a-icon type="setting" /> Settings</router-link
             ></a-menu-item
@@ -167,7 +172,14 @@
                 ><a-icon type="team" /> Users</router-link
               ></a-menu-item
             >
-            <a-menu-item key="3"
+            <a-menu-item key="3">
+              <a-badge :count="4">
+                <router-link to="/notifications"
+                  ><a-icon type="bell" /> Notifications</router-link
+                ></a-badge
+              ></a-menu-item
+            >
+            <a-menu-item key="4"
               ><router-link to="/settings"
                 ><a-icon type="setting" /> Settings</router-link
               ></a-menu-item

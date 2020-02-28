@@ -1267,27 +1267,6 @@ export default {
     },
 
     // Deleting account, may be moved later
-    deleteAccount() {
-      var user = firebase.auth().currentUser;
-      user
-        .delete()
-        .then(function() {
-          firebase
-            .database()
-            .ref("users")
-            .child(user.uid)
-            .remove();
-          message.loading(
-            "Your account has just been deleted, returning to home page..."
-          );
-          setTimeout(() => {
-            window.location.href = "./";
-          }, 3000);
-        })
-        .catch(function(error) {
-          message.error(error.message);
-        });
-    },
     handleSubmit(e) {
       e.preventDefault();
       this.form.validateFields((err, values) => {
