@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <a-back-top />
     <!-- Burger Menu -->
     <div>
       <a-drawer
@@ -8,23 +9,62 @@
         @close="onClose"
         :visible="visible"
       >
-        <div style="display: flex; justify-content: space-between; align-items: center;" slot="title">
-          <span v-if="isLogged === 'true'" style="display: flex; align-items: center;">{{ $store.state.userdb.displayName }}<a-avatar style="margin-left: 5px;" :src="$store.state.userdb.photoURL" /></span>
+        <div
+          style="display: flex; justify-content: space-between; align-items: center;"
+          slot="title"
+        >
+          <span
+            v-if="isLogged === 'true'"
+            style="display: flex; align-items: center;"
+            >{{ $store.state.userdb.displayName
+            }}<a-avatar
+              style="margin-left: 5px;"
+              :src="$store.state.userdb.photoURL"
+          /></span>
           <span v-else>Welcome, guest.</span>
           <a-icon @click="onClose" style="padding: 10px;" type="close" />
         </div>
         <div slot="footer">
-          COUCOU
+          Made with ❤️ by fov and nico
         </div>
         <a-menu v-if="isLogged === 'true'" style="border-right: none;">
-          <a-menu-item key="1" @click="onClose"><router-link :to="`/`"><a-icon type="home" /> Home</router-link></a-menu-item>
-          <a-menu-item key="2" @click="onClose"><router-link :to="`/profile/${$store.state.userdb.uid}`"><a-icon type="user" /> Profile</router-link></a-menu-item>
-          <a-menu-item key="3" @click="onClose"><router-link to="/friends"><a-icon type="team" /> Friends</router-link></a-menu-item>
-          <a-menu-item key="4" @click="onClose"><router-link to="/settings"><a-icon type="setting" /> Settings</router-link></a-menu-item>
+          <a-menu-item key="1" @click="onClose"
+            ><router-link :to="`/`"
+              ><a-icon type="home" /> Home</router-link
+            ></a-menu-item
+          >
+          <a-menu-item key="2" @click="onClose"
+            ><router-link :to="`/profile/${$store.state.userdb.uid}`"
+              ><a-icon type="user" /> Profile</router-link
+            ></a-menu-item
+          >
+          <a-menu-item key="3" @click="onClose"
+            ><router-link to="/users"
+              ><a-icon type="team" /> Users</router-link
+            ></a-menu-item
+          >
+          <a-menu-item key="4" @click="onClose"
+            ><router-link to="/notifications"
+              ><a-icon type="bell" /> Notifications</router-link
+            ></a-menu-item
+          >
+          <a-menu-item key="5" @click="onClose"
+            ><router-link to="/settings"
+              ><a-icon type="setting" /> Settings</router-link
+            ></a-menu-item
+          >
         </a-menu>
         <a-menu v-else style="border-right: none;">
-          <a-menu-item key="1" @click="onClose"><router-link :to="`/`"><a-icon type="home" /> Home</router-link></a-menu-item>
-          <a-menu-item key="2" @click="onClose"><router-link :to="`/login`"><a-icon type="login" /> Account</router-link></a-menu-item>
+          <a-menu-item key="1" @click="onClose"
+            ><router-link :to="`/`"
+              ><a-icon type="home" /> Home</router-link
+            ></a-menu-item
+          >
+          <a-menu-item key="2" @click="onClose"
+            ><router-link :to="`/login`"
+              ><a-icon type="login" /> Account</router-link
+            ></a-menu-item
+          >
         </a-menu>
         <div
           :style="{
@@ -37,130 +77,375 @@
             width: '100%',
             borderTop: '1px solid #e9e9e9',
             padding: '10px 16px',
-            background: '#fff',
-            textAlign: 'right',
-          }">
-          <Moon />
-          <a-button v-if="isLogged === 'true'" @click="signOut" style="margin-left: 10px;" type="danger"><a-icon type="logout"/> Logout</a-button>
-          <p v-else style="margin: 0; font-size: 12px;">Made with <a-icon style="color: red;" theme="filled" type="heart" /> by fov and nico</p>
+            background: 'var(--main-bg-component-color)',
+            textAlign: 'right'
+          }"
+        >
+          <div
+            style="width: 25px; height: 25px;"
+            v-if="theme === 'light'"
+            @click="loadDarkTheme"
+          >
+            <Moon />
+          </div>
+          <div
+            style="width: 25px; height: 25px;"
+            v-else
+            @click="loadLightTheme"
+          >
+            <Sun />
+          </div>
+          <a-button
+            v-if="isLogged === 'true'"
+            @click="signOut"
+            style="margin-left: 10px;"
+            type="danger"
+            ><a-icon type="logout" /> Logout</a-button
+          >
+          <p v-else style="margin: 0; font-size: 12px;">
+            Made with
+            <a-icon style="color: red;" theme="filled" type="heart" /> by fov
+            and nico
+          </p>
         </div>
       </a-drawer>
     </div>
     <!-- !Burger Menu -->
-    <div v-if="fullLoad && firstTime !== 'yes'" class="fullLoad">
-      <img class="loader fullLoad_img" src="@/assets/eye.png" alt="">
-    </div>
     <div id="nav">
-      <router-link style="color: #000 !important;" to="/">
-        <img style="margin-right: 10px; width: 20px" src="@/assets/eye.png" alt="Logo"><span style="font-weight: lighter;">Watchtimer.</span>
-      </router-link>
+      <div style="display: flex; align-items: center;">
+        <router-link style="color: var(--main-font-color) !important;" to="/">
+          <img
+            style="margin-right: 10px; width: 20px"
+            src="@/assets/eye.png"
+            alt="Logo"
+          /><span style="font-weight: lighter;">Watchtimer.</span
+          ><a-tag style="margin-left: 5px;">v0.1</a-tag>
+        </router-link>
+        <div
+          class="desktop"
+          style="cursor: pointer; width: 25px; height: 25px; margin-left: 5px;"
+          v-if="theme === 'light'"
+          @click="loadDarkTheme"
+        >
+          <Moon />
+        </div>
+        <div
+          class="desktop"
+          style="cursor: pointer; width: 25px; height: 25px; margin-left: 5px;"
+          v-else
+          @click="loadLightTheme"
+        >
+          <Sun />
+        </div>
+      </div>
       <div style="display: flex; align-items: center;">
         <p style="margin: 0;" class="mobile" type="primary" @click="showDrawer">
           Menu
         </p>
         <router-link class="desktop" to="/">Home</router-link>
-        <router-link class="desktop" v-if="isLogged === 'false'" style="margin-left: 10px;" to="/login">Account</router-link>
-        <a-dropdown style="margin-left: 5px;" class="desktop" v-if="isLogged === 'true'">
-          <span style="display: flex; align-items: center;">{{ $store.state.userdb.displayName }}<a-avatar style="margin-left: 5px;" :src="$store.state.userdb.photoURL" /></span>
+        <router-link
+          class="desktop"
+          v-if="isLogged === 'false'"
+          style="margin-left: 10px;"
+          to="/login"
+          >Account</router-link
+        >
+        <a-dropdown
+          style="margin-left: 10px;"
+          class="desktop-flex"
+          v-if="isLogged === 'true'"
+        >
+          <span style="display: flex; align-items: center;"
+            >{{ $store.state.userdb.displayName
+            }}<a-avatar
+              style="margin-left: 5px;"
+              :src="$store.state.userdb.photoURL"
+          /></span>
           <a-menu slot="overlay">
-            <a-menu-item key="1"><router-link :to="`/profile/${$store.state.userdb.uid}`"><a-icon type="user" /> Profile</router-link></a-menu-item>
-            <a-menu-item key="2"><router-link to="/friends"><a-icon type="team" /> Friends</router-link></a-menu-item>
-            <a-menu-item key="3"><router-link to="/settings"><a-icon type="setting" /> Settings</router-link></a-menu-item>
-            <a-menu-item key="4" @click="signOut"><a-icon type="logout" /> Log out</a-menu-item>
+            <a-menu-item key="1"
+              ><router-link :to="`/profile/${$store.state.userdb.uid}`"
+                ><a-icon type="user" /> Profile</router-link
+              ></a-menu-item
+            >
+            <a-menu-item key="2"
+              ><router-link to="/users"
+                ><a-icon type="team" /> Users</router-link
+              ></a-menu-item
+            >
+            <a-menu-item key="3">
+              <a-badge :count="4">
+                <router-link to="/notifications"
+                  ><a-icon type="bell" /> Notifications</router-link
+                ></a-badge
+              ></a-menu-item
+            >
+            <a-menu-item key="4"
+              ><router-link to="/settings"
+                ><a-icon type="setting" /> Settings</router-link
+              ></a-menu-item
+            >
+            <a-menu-item key="4" @click="signOut"
+              ><a-icon type="logout" />Log out</a-menu-item
+            >
           </a-menu>
         </a-dropdown>
       </div>
     </div>
-    <router-view/>
-    <div id="footer">
-    </div>
+    <router-view style="margin-top: 100px;" />
+    <div id="footer"></div>
   </div>
 </template>
 
 <script>
-import firebase from 'firebase'
-import { message } from 'ant-design-vue'
-import Moon from '@/components/Moon.vue'
+import firebase from "firebase";
+import { message } from "ant-design-vue";
+import Moon from "@/components/Moon.vue";
+import Sun from "@/components/Sun.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    Moon
+    Moon,
+    Sun
   },
-  data () {
+  data() {
     return {
       // Burger Menu
       visible: false,
 
-      isLogged: localStorage.isLogged,
-      fullLoad: true,
-      firstTime: sessionStorage.firstTime
-    }
+      theme: localStorage.theme,
+
+      isLogged: localStorage.isLogged
+    };
   },
   beforeCreate() {
-    if (localStorage.isLogged === null) {
-      localStorage.isLogged = false
+    if (!localStorage.isLogged) {
+      localStorage.isLogged = false;
+    }
+    if (!localStorage.theme) {
+      localStorage.theme = "light";
     }
   },
-  mounted () {
-    this.$store.registerModule('userdb', { preserveState: true })
-    this.$store.registerModule('userList', { preserveState: true })
-    this.$store.registerModule('user', { preserveState: true })
-    this.$store.dispatch('updateProfile')
-    this.$store.dispatch('updateUserList')
-    setTimeout(() => {
-      this.fullLoad = false
-      sessionStorage.firstTime = "yes"
-    }, 4000)
+  mounted() {
+    this.$store.registerModule("userdb", { preserveState: true });
+    this.$store.registerModule("userList", { preserveState: true });
+    this.$store.registerModule("user", { preserveState: true });
+    this.$store.registerModule("comments", { preserveState: true });
+    this.$store.dispatch("updateProfile");
+    this.$store.dispatch("updateComments");
+    this.$store.dispatch("updateUserList");
+    this.fullLoad = true;
+    if (localStorage.theme === "light") {
+      this.loadLightTheme();
+    } else if (localStorage.theme === "dark") {
+      this.loadDarkTheme();
+    }
   },
   methods: {
+    loadDarkTheme() {
+      console.log("Click !");
+      if (localStorage.theme === "light") {
+        localStorage.theme = "dark";
+        this.theme = "dark";
+      }
+      document.documentElement.style.setProperty("--main-bg-color", "#1b1b1b");
+      document.documentElement.style.setProperty(
+        "--main-bg-component-color",
+        "#2b2b2b"
+      );
+      document.documentElement.style.setProperty(
+        "--main-opacity-color",
+        "rgba(255, 255, 255, 0.75)"
+      );
+      document.documentElement.style.setProperty(
+        "--main-opacity-more-color",
+        "rgba(255, 255, 255, 0.45)"
+      );
+      document.documentElement.style.setProperty(
+        "--main-font-button-disabled-color",
+        "rgba(255, 255, 255, 0.25)"
+      );
+      document.documentElement.style.setProperty(
+        "--main-font-color",
+        "#ffffff"
+      );
+    },
+    loadLightTheme() {
+      console.log("Click !");
+      if (localStorage.theme === "dark") {
+        localStorage.theme = "light";
+        this.theme = "light";
+      }
+      document.documentElement.style.setProperty("--main-bg-color", "#ffffff");
+      document.documentElement.style.setProperty(
+        "--main-bg-component-color",
+        "#fafafa"
+      );
+      document.documentElement.style.setProperty(
+        "--main-opacity-color",
+        "rgba(0, 0, 0, 0.75)"
+      );
+      document.documentElement.style.setProperty(
+        "--main-opacity-more-color",
+        "rgba(0, 0, 0, 0.45)"
+      );
+      document.documentElement.style.setProperty(
+        "--main-font-button-disabled-color",
+        "rgba(0, 0, 0, 0.25)"
+      );
+      document.documentElement.style.setProperty(
+        "--main-font-color",
+        "#000000"
+      );
+    },
     signOut() {
-      firebase.auth().signOut()
-      .then(function() {
-        // Sign-out successful.
-        localStorage.isLogged = false
-        localStorage.removeItem('token159910gichesnihich');
-        window.location.href = '/'
-      })
-      .catch(function(error) {
-        // An error happened
-        message.error('An error occured, please try again.' + error)
-      });
+      firebase
+        .auth()
+        .signOut()
+        .then(function() {
+          // Sign-out successful.
+          localStorage.isLogged = false;
+          window.location.href = "/";
+        })
+        .catch(function(error) {
+          // An error happened
+          message.error("An error occured, please try again." + error);
+        });
     },
     showDrawer() {
       this.visible = true;
     },
     onClose() {
       this.visible = false;
-    },
+    }
   }
 };
 </script>
 
+<style lang="less">
+@primary-color: #ffd500;
+@normal-color: #d9d9d9;
+@white: var(--main-bg-color);
+@black: var(--main-font-color);
+</style>
+
 <style lang="scss">
+@import "./styles/ant-theme.scss";
+
 .ant-avatar > img {
   object-fit: cover;
 }
 .ant-message {
   z-index: 9999 !important;
 }
-</style>
-
-<style lang="scss" scoped>
+.desktop-flex {
+  display: none !important;
+  @media (min-width: 768px) {
+    display: flex !important;
+  }
+}
 .desktop {
   display: none !important;
-  @media(min-width: 768px) {
+  @media (min-width: 768px) {
     display: block !important;
   }
 }
-
 .mobile {
   display: block !important;
-  @media(min-width: 768px) {
+  @media (min-width: 768px) {
     display: none !important;
   }
 }
+.main-card {
+  position: relative;
+  width: 100%;
+  min-width: 320px;
+  &_noMargin {
+    margin: 0 -5px;
+    @media (min-width: 768px) {
+      width: auto;
+      margin: 0 -10px;
+    }
+  }
+  &_img {
+    width: 50px;
+    @media (min-width: 768px) {
+      width: 75px;
+    }
+    @media (min-width: 1024px) {
+      width: 100px;
+    }
+    @media (min-width: 1440px) {
+      width: 125px;
+    }
+  }
+  @media (min-width: 768px) {
+    width: 85%;
+  }
+  @media (min-width: 1024px) {
+    width: 75%;
+  }
+}
+.anime-card_outside > .anime-card {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+.anime-card > .ant-card-body {
+  padding: 0;
+}
+.anime-card {
+  width: 50%;
+  margin: 5px;
+  @media (min-width: 768px) {
+    width: 25%;
+    margin: 10px;
+  }
+  @media (min-width: 1024px) {
+    width: 20%;
+  }
+  @media (min-width: 1440px) {
+    width: 16.66%;
+  }
+  &_outside {
+    width: 50%;
+    padding: 5px;
+    @media (min-width: 468px) {
+      width: 33.33%;
+      padding: 5px;
+    }
+    @media (min-width: 768px) {
+      width: 25%;
+      padding: 10px;
+    }
+    @media (min-width: 1024px) {
+      width: 20%;
+    }
+    @media (min-width: 1440px) {
+      width: 16.66%;
+    }
+  }
+  &_img {
+    object-fit: cover;
+    object-position: 50% 100%;
+    height: 60vw;
+    @media (min-width: 468px) {
+      height: 40vw;
+    }
+    @media (min-width: 768px) {
+      height: 27vw;
+    }
+    @media (min-width: 1024px) {
+      height: 20vw;
+    }
+    @media (min-width: 1440px) {
+      height: 15vw;
+    }
+  }
+}
+</style>
 
+<style lang="scss" scoped>
 .loader {
   -webkit-animation: scale-up-center 0.4s cubic-bezier(0.39, 0.575, 0.565, 1)
     infinite alternate;
@@ -197,13 +482,22 @@ export default {
 }
 
 #nav {
+  width: 100%;
+  color: var(--main-font-color);
+  background: var(--main-bg-color);
+  border-bottom: 1px solid #e8e8e8;
+  z-index: 998;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30px;
+  padding: 20px 30px;
 
   a {
-    color: #000000;
+    color: var(--main-font-color);
     transition: 0.3s all;
     &:hover {
       color: #ffd500;
@@ -213,21 +507,6 @@ export default {
       color: #ffd500;
       text-decoration: none;
     }
-  }
-}
-
-.fullLoad {
-  position: fixed;
-  z-index: 999;
-  background: white;
-  width: 100vw;
-  height: 100vh;
-  &_img {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 50px;
   }
 }
 </style>

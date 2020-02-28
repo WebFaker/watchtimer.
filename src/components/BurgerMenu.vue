@@ -6,9 +6,7 @@
       @close="onClose"
       :visible="visible"
     >
-      <div slot="title">
-        
-      </div>
+      <div slot="title"></div>
       <p>fov...</p>
       <p>Some contents...</p>
       <p>Some contents...</p>
@@ -20,12 +18,12 @@
 export default {
   data() {
     return {
-      visible: false,
+      visible: false
     };
   },
   props: {
     showDrawer: {
-      type: Function,
+      type: Function
     }
   },
   methods: {
@@ -34,12 +32,9 @@ export default {
     },
     onClose() {
       this.visible = false;
-    },
-  },
+    }
+  }
 };
-
 </script>
 
-<style>
-
-</style>
+<style></style>

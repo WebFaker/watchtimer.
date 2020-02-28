@@ -57,6 +57,7 @@
           register now
         </a-button>
       </a-form-item>
+      <!-- <a-button @click="signInGoogle"><a-icon type="google" /> Google</a-button> -->
     </a-form>
     <a-form
       v-if="logStatus === 'register'"
@@ -208,8 +209,7 @@ import { message } from "ant-design-vue";
 
 export default {
   name: "Login",
-  components: {
-  },
+  components: {},
   data() {
     return {
       userLogged: false,
@@ -280,12 +280,41 @@ export default {
             .database()
             .ref("users/" + userID)
             .update({
-              lastSigned: lastSigned,
-            })
+              lastSigned: lastSigned
+            });
           window.location.href = "../";
         })
         .catch(function(error) {
           message.error("Oops, " + error.message);
+        });
+    },
+    signInGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+
+      firebase
+        .auth()
+        .signInWithPopup(provider)
+        .then(function(result) {
+          // This gives you a Google Access Token. You can use it to access the Google API.
+          var token = result.credential.accessToken;
+          console.log(token);
+          // The signed-in user info.
+          var user = result.user;
+          console.log(user);
+          // ...
+        })
+        .catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          console.log(errorCode, errorMessage);
+          // The email of the user's account used.
+          var email = error.email;
+          console.log(email);
+          // The firebase.auth.AuthCredential type that was used.
+          var credential = error.credential;
+          console.log(credential);
+          // ...
         });
     },
     signUp() {
@@ -297,11 +326,13 @@ export default {
         .createUserWithEmailAndPassword(signUpEmail, signUpPassword)
         .then(function (user) { // eslint-disable-line
             firebase.auth().currentUser.updateProfile({
-              displayName: username,
+              displayName: username
             });
             var userID = firebase.auth().currentUser.uid;
-            var creationTime = firebase.auth().currentUser.metadata.creationTime;
-            var lastSigned = firebase.auth().currentUser.metadata.lastSignInTime;
+            var creationTime = firebase.auth().currentUser.metadata
+              .creationTime;
+            var lastSigned = firebase.auth().currentUser.metadata
+              .lastSignInTime;
             firebase
               .database()
               .ref("users")
@@ -315,7 +346,17 @@ export default {
                 bio: "I'm new here, I hope we'll be friends !",
                 createdAt: creationTime,
                 lastSigned: lastSigned,
+                location: {
+                  country: "Somewhere",
+                  other: ""
+                },
                 flag: "active",
+                favChar: {
+                  name: "nobody",
+                  photoUrl:
+                    "https://firebasestorage.googleapis.com/v0/b/watch-timer.appspot.com/o/18436.png?alt=media&token=68807595-a777-4c67-a16f-a49d043c2547",
+                  mal_id: "00000"
+                },
                 friends: {
                   following: {
                     [userID]: userID
@@ -323,6 +364,12 @@ export default {
                   followed: {
                     [userID]: userID
                   }
+                },
+                social: {
+                  twitter: "",
+                  instagram: "",
+                  discord: "",
+                  youtube: ""
                 },
                 watchedAnimes: {
                   initialise: 1

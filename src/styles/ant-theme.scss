@@ -1,0 +1,138 @@
+// Light and Dark Theme
+body {
+  // --main-bg-color: #1b1b1b;
+  // --main-bg-component-color: #2b2b2b;
+  // --main-bg-opacity-color: rgba(255, 255, 255, 0.75);
+  // --main-bg-opacity-more-color: rgba(255, 255, 255, 0.45);
+  // --main-font-button-disabled-color: rgba(255, 255, 255, 0.25);
+  // --main-font-color: #fff;
+  background-color: var(--main-bg-color);
+  color: var(--main-font-color);
+  transition: padding 0.3s;
+}
+
+.ant-dropdown-menu-item:hover,
+.ant-select-dropdown-menu-item-selected,
+.ant-card,
+.ant-card-meta-title,
+.ant-card-meta-description,
+.ant-modal-content,
+.ant-modal-header,
+.ant-modal-title,
+.ant-list-vertical .ant-list-item-meta-title {
+  background-color: var(--main-bg-color) !important;
+  color: var(--main-font-color);
+}
+
+.ant-btn-disabled,
+.ant-btn.disabled,
+.ant-btn[disabled],
+.ant-btn-disabled:hover,
+.ant-btn.disabled:hover,
+.ant-btn[disabled]:hover,
+.ant-btn-disabled:focus,
+.ant-btn.disabled:focus,
+.ant-btn[disabled]:focus,
+.ant-btn-disabled:active,
+.ant-btn.disabled:active,
+.ant-btn[disabled]:active,
+.ant-btn-disabled.active,
+.ant-btn.disabled.active,
+.ant-btn[disabled].active {
+  color: var(--main-font-button-disabled-color);
+  background-color: var(--main-bg-opacity-more-color);
+}
+
+.ant-tooltip-inner {
+  color: var(--main-bg-color);
+  background-color: var(--main-font-color);
+}
+
+.ant-message-notice-content {
+  background: var(--main-bg-component-color);
+  color: var(--main-font-color);
+}
+
+.ant-tooltip-placement-top .ant-tooltip-arrow,
+.ant-tooltip-placement-topLeft .ant-tooltip-arrow,
+.ant-tooltip-placement-topRight .ant-tooltip-arrow {
+  border-top-color: var(--main-font-color);
+}
+
+.icon-wrapper .anticon {
+  color: var(--main-font-color) !important;
+}
+
+.ant-collapse-borderless,
+.ant-collapse-header {
+  background: var(--main-bg-color);
+  color: var(--main-font-color) !important;
+}
+
+.ant-collapse > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
+  color: var(--main-font-color) !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+p {
+  color: var(--main-font-color);
+}
+
+.ant-list-item-content > span, .ant-list-item-action > li > span {
+  color: var(--main-font-color)
+}
+
+.ant-btn > span, .ant-btn > span > * {
+  color: var(--main-bg-opacity-color);
+}
+
+.ant-drawer-content, .ant-drawer-header, .ant-menu {
+  background: var(--main-bg-component-color);
+}
+
+.ant-menu-item > a {
+  color: var(--main-font-color);
+}
+
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+  background: var(--main-bg-color);
+}
+
+.ant-back-top-content {
+  background-color: var(--main-bg-opacity-more-color);
+}
+
+.ant-comment-content-author-name > * {
+  color: var(--main-bg-opacity-color);
+}
+
+.ant-comment-actions > li > span,
+.ant-dropdown-menu-item > a,
+.ant-dropdown-menu-item {
+  color: var(--main-bg-opacity-color);
+}
+
+.ant-card-actions {
+  background: var(--main-bg-component-color);
+}
+
+.ant-input,
+.ant-select-selection,
+.ant-dropdown,
+.ant-dropdown-menu,
+.ant-select-dropdown,
+.ant-select-dropdown-menu-item {
+  color: var(--main-font-color);
+  background: var(--main-bg-component-color);
+}
+
+.ant-select-arrow,
+.ant-input-search-icon {
+  color: var(--main-font-color);
+}
+
+// -----------------------------------------
